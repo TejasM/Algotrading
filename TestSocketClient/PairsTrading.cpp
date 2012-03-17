@@ -3,25 +3,11 @@
  */
 
 #include<iostream>
+#include<cmath>
+#include<string>
 #include "PairsTrading.h"
 #include "Stock.h"
 #include "utils.h"
-
-// See Design Document for threshold terminology
-#define T1 1
-#define T2 2
-
-// The state the pair is currently in
-#define UNCORRELATED 1
-#define CORRELATED 2
-#define DIVERGED 3
-#define FAILED 4
-
-// time step in seconds
-#define timestep 1
-
-// seconds we need to be correlated
-#define correlatedThreshold 10
 
 using namespace std;
 
@@ -187,7 +173,6 @@ void PairsTrading::start() {
     // the stop flag instead of having a count
     int count=0;
     
-    int time;
     // while(stop != 0) {
     while (count < 3) {
         count++;
@@ -217,4 +202,5 @@ float PairsTrading::getDecision() {
          cout << "Stock 2: useMACD" << endl;
     }
     else cout << "Stock 2: useEMA" << endl;
+    return 0;
 }

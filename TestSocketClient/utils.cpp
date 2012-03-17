@@ -5,6 +5,8 @@
 #include<iostream>
 #include "utils.h"
 
+#include<ctime>
+
 // stops cmd.exe from terminating
 void pause() {
     getchar();
