@@ -19,7 +19,8 @@ public:
 };
 
 //EMA constructor
-EMA::EMA(int barSize, int numPeriods) : barSize(barSize), numPeriods(numPeriods), isEMAValid(false) {
+EMA::EMA(int barSize, int numPeriods) : barSize(barSize), numPeriods(numPeriods), isEMAValid(false) 
+{
 		alpha = 2/(numPeriods+1); 
 		data->resize(100); //arbitrary default size
 		//request real time bar data?
@@ -32,30 +33,39 @@ bool EMA::isValid() {
 void EMA::calculateEMA() {
 	double priceToday = 3; //how do I get this?, 
 	data->push_back(priceToday * alpha + data->back() * (1 - alpha)); //calculate EMA, store it
+	if (data->size() == numPeriods) {
+		isEMAValid = true;
+	}
 }
 
 void EMA::getEMA() {
-	return;
+	return; //not sure yet
 }
 
-
-
 class MACD {
-	EMA slow;
-	EMA fast;
+	EMA *slow;
+	EMA *fast;
 	double signal;
 	double histogram;
+	bool isMACDValid;
+	vector <double> *data;
+	int slowBars;
+	int fastBars;
+	int slowPeriod;
+	int fastPeriod;
 public:
-	MACD(int slowBars, int fastBars);
+	MACD(int slowBars, int fastBars, int slowPeriod, int fastPeriod);
 	double getHistogram();
 	double getMACD();
 	double getSignal();
 };
 
-
 //MACD constructor
-MACD::MACD(int barSize, int numPeriods) : barSize(barSize), numPeriods(numPeriods), isEMAValid(false) {
-		alpha = 2/(numPeriods+1); 
+MACD::MACD(int slowBars, int fastBars, int slowPeriod, int fastPeriod) : slowBars(slowBars), fastBars(fastBars), slowPeriod(slowPeriod),
+			fastPeriod(fastPeriod), isMACDValid(false)
+{
 		data->resize(100); //arbitrary default size
-		//request real time bar data?
+		this->slow = new EMA(slowBars, slowPeriod);
+		this->fast = new EMA(fastBars, fastPeriod);
 }
+
