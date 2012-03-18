@@ -14,6 +14,7 @@ class EMA {
 	void calculateEMA(); //updates data with ema values
 public:
 	EMA(int barSize, int numPeriods);
+	~EMA();
 	void getEMA(); //in a file? a copy of my vector?
 	bool isValid();
 };
@@ -22,8 +23,13 @@ public:
 EMA::EMA(int barSize, int numPeriods) : barSize(barSize), numPeriods(numPeriods), isEMAValid(false) 
 {
 		alpha = 2/(numPeriods+1); 
-		data->resize(100); //arbitrary default size
+		data = new vector <double> (100); //arbitrary default size
 		//request real time bar data?
+}
+
+EMA::~EMA()
+{
+	delete data;
 }
 
 bool EMA::isValid() {
@@ -45,27 +51,49 @@ void EMA::getEMA() {
 class MACD {
 	EMA *slow;
 	EMA *fast;
-	double signal;
-	double histogram;
+	EMA *signal;
 	bool isMACDValid;
-	vector <double> *data;
+	vector <double> *histogram;
+	vector <double> *macd;
 	int slowBars;
 	int fastBars;
 	int slowPeriod;
 	int fastPeriod;
+	int macdPeriod;
+	void calculateMACD();
 public:
-	MACD(int slowBars, int fastBars, int slowPeriod, int fastPeriod);
-	double getHistogram();
-	double getMACD();
-	double getSignal();
+	MACD(int slowBars, int fastBars, int slowPeriod, int fastPeriod, int macdPeriod);
+	~MACD();
+	bool isValid();
 };
 
 //MACD constructor
-MACD::MACD(int slowBars, int fastBars, int slowPeriod, int fastPeriod) : slowBars(slowBars), fastBars(fastBars), slowPeriod(slowPeriod),
-			fastPeriod(fastPeriod), isMACDValid(false)
+MACD::MACD(int slowBars, int fastBars, int slowPeriod, int fastPeriod, int macdPeriod) : slowBars(slowBars), fastBars(fastBars), slowPeriod(slowPeriod), 
+			fastPeriod(fastPeriod), macdPeriod(macdPeriod), isMACDValid(false), signal(NULL)
 {
-		data->resize(100); //arbitrary default size
+		histogram = new vector <double> (100); //arbitrary default size
+		macd = new vector <double> (100);
 		this->slow = new EMA(slowBars, slowPeriod);
 		this->fast = new EMA(fastBars, fastPeriod);
 }
 
+void MACD::calculateMACD()
+{
+	unsigned int i = 0;
+	//macd[i] = fast->data[i] - slow->data[i];
+	//histogram[i] = macd[i] - signal->data[i];
+}
+
+MACD::~MACD() 
+{
+	delete slow; 
+	delete fast;
+	delete signal;
+	delete histogram;
+	delete macd;
+}
+
+bool MACD::isValid()
+{
+	return isMACDValid;
+}
