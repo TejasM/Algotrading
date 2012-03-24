@@ -1,99 +1,80 @@
 /* EMA */
 
 #include <iostream>
-#include <vector>
 
 using namespace std;
 
+/* The EMA Class. Used to calculate an exponential moving average. The class is for computation only, and has no notion of what stock it is being used for */
+
 class EMA {
-	vector <double> *data; //buffer for the past EMA values
-	bool isEMAValid; //really shouldn't trust data until numPeriods have passed
-	int numPeriods;
-	int barSize; //how long to wait before updating
+	double prevEMA;
+	int validCount; //used to calculate whether or not EMA is valid because not enough computations have been done. Counts down from numPeriods
 	double alpha; //ema constant
-	void calculateEMA(); //updates data with ema values
 public:
-	EMA(int barSize, int numPeriods);
+	EMA(int numPeriods);
 	~EMA();
-	void getEMA(); //in a file? a copy of my vector?
-	bool isValid();
+	double getEMA(double curVal); //compute the next sequence in EMA based on stored previous value and passed in paramter
+	bool isValid(); //is the EMA valid
 };
 
 //EMA constructor
-EMA::EMA(int barSize, int numPeriods) : barSize(barSize), numPeriods(numPeriods), isEMAValid(false) 
+EMA::EMA(int numPeriods) :  prevEMA(0), validCount(numPeriods)
 {
-		alpha = 2/(numPeriods+1); 
-		data = new vector <double> (100); //arbitrary default size
-		//request real time bar data?
+	alpha = 2/(numPeriods+1); 
 }
 
 EMA::~EMA()
 {
-	delete data;
 }
 
 bool EMA::isValid() {
-	return isEMAValid;
+	return (validCount <= 0);
 }
 
-void EMA::calculateEMA() {
-	double priceToday = 3; //how do I get this?, 
-	data->push_back(priceToday * alpha + data->back() * (1 - alpha)); //calculate EMA, store it
-	if (data->size() == numPeriods) {
-		isEMAValid = true;
+double EMA::getEMA(double curVal) {
+	prevEMA = curVal * alpha + prevEMA * (1 - alpha); //calculate EMA, store it
+	if (validCount > 0) {
+		validCount--;
 	}
 }
 
-void EMA::getEMA() {
-	return; //not sure yet
-}
+/* MACD computation class. Contains 3 EMA's, outputs histogram and macd.
+ * defaults to 12/26/9 
+ * MACD is EMAfast - EMAslow
+ * Signal is an EMA of MACD
+ * Histogram is MACD - signal
+ */
 
 class MACD {
-	EMA *slow;
-	EMA *fast;
-	EMA *signal;
-	bool isMACDValid;
-	vector <double> *histogram;
-	vector <double> *macd;
-	int slowBars;
-	int fastBars;
-	int slowPeriod;
-	int fastPeriod;
-	int macdPeriod;
-	void calculateMACD();
+	EMA slow; //a slow EMA, traditionally 26
+	EMA fast; //a fast EMA, traditionally 12
+	EMA signal; //EMA of EMAfast – EMAslow, traditionally 9. 
 public:
-	MACD(int slowBars, int fastBars, int slowPeriod, int fastPeriod, int macdPeriod);
+	MACD(int slowPeriod = 12, int fastPeriod = 26, int signalPeriod = 9); //default args just call MACD()
+	//Call this function with slowValue, fastValue. Pass in references to assign macd/signal/histogram. IF invalid, NULL
+	void getMACD(double slowValue, double fastValue, double *macd, double *signal, double *histogram);
 	~MACD();
 	bool isValid();
 };
 
 //MACD constructor
-MACD::MACD(int slowBars, int fastBars, int slowPeriod, int fastPeriod, int macdPeriod) : slowBars(slowBars), fastBars(fastBars), slowPeriod(slowPeriod), 
-			fastPeriod(fastPeriod), macdPeriod(macdPeriod), isMACDValid(false), signal(NULL)
+MACD::MACD(int slowPeriod, int fastPeriod, int signalPeriod) : slow(slowPeriod), fast(fastPeriod), signal(signalPeriod)
 {
-		histogram = new vector <double> (100); //arbitrary default size
-		macd = new vector <double> (100);
-		this->slow = new EMA(slowBars, slowPeriod);
-		this->fast = new EMA(fastBars, fastPeriod);
 }
 
-void MACD::calculateMACD()
+MACD::~MACD() 
+{
+}
+
+void MACD::getMACD()
 {
 	unsigned int i = 0;
 	//macd[i] = fast->data[i] - slow->data[i];
 	//histogram[i] = macd[i] - signal->data[i];
 }
 
-MACD::~MACD() 
-{
-	delete slow; 
-	delete fast;
-	delete signal;
-	delete histogram;
-	delete macd;
-}
 
 bool MACD::isValid()
 {
-	return isMACDValid;
+	return (signal.isValid() && slow.isValid()); //both signal and slow must be valid
 }
