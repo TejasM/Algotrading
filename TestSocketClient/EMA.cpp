@@ -51,8 +51,8 @@ class MACD {
 	EMA signal; //EMA of EMAfast – EMAslow, traditionally 9. 
 public:
 	MACD(int slowPeriod = 12, int fastPeriod = 26, int signalPeriod = 9); //default args just call MACD()
-	//Call this function with slowValue, fastValue. Pass in references to assign macd/signal/histogram. IF invalid, NULL
-	void getMACD(double slowValue, double fastValue, double *macd, double *signal, double *histogram);
+	//Call this function with slowValue, fastValue. Pass in references to assign macd/signal/histogram. CHECK THE BOOL
+	bool getMACD(double slowValue, double fastValue, double *macd, double *signal, double *histogram);
 	~MACD();
 	bool isValid();
 };
@@ -66,11 +66,12 @@ MACD::~MACD()
 {
 }
 
-void MACD::getMACD()
+bool MACD::getMACD(double slowValue, double fastValue, double *macd, double *sig, double *histogram)
 {
-	unsigned int i = 0;
-	//macd[i] = fast->data[i] - slow->data[i];
-	//histogram[i] = macd[i] - signal->data[i];
+	*macd = fast.getEMA(fastValue) - slow.getEMA(slowValue);
+	*sig = signal.getEMA(*macd);
+	*histogram = *macd - *sig;
+	return isValid();
 }
 
 
