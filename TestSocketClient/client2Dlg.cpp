@@ -18,6 +18,8 @@
 #include "DlgFinancialAdvisor.h"
 #include "DlgScanner.h"
 #include "CommissionReport.h"
+#include "Input_Dialog.h"
+#include <fstream>
 
 #include "OrderState.h"
 
@@ -296,6 +298,7 @@ BEGIN_MESSAGE_MAP(CClient2Dlg, CDialog)
 	ON_BN_CLICKED(IDC_REQ_GLOBAL_CANCEL, OnReqGlobalCancel)
 	ON_BN_CLICKED(IDC_REQ_MARKET_DATA_TYPE, OnReqMarketDataType)
 	//}}AFX_MSG_MAP
+	ON_BN_CLICKED(IDC_BUTTON1, &CClient2Dlg::OnBnClickedButton1)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -419,10 +422,12 @@ void CClient2Dlg::OnConnect()
 // req mkt data
 void CClient2Dlg::OnReqMktData()
 {
+	char text[255];
 	// run dlg box
 	m_dlgOrder->init( this, "Request Market Data", CDlgOrder::REQ_MKT_DATA, m_managedAccounts);
 	if( m_dlgOrder->DoModal() != IDOK) return;
-
+	sprintf(text, "The inputs are: ID: %d,  Ticks: %s, BOOL: %d", m_dlgOrder->m_id,  m_dlgOrder->m_genericTicks, m_dlgOrder->m_snapshotMktData);
+	MessageBox(text);
 	// request ticker
 	m_pClient->reqMktData( m_dlgOrder->m_id, m_dlgOrder->getContract(),
 		m_dlgOrder->m_genericTicks, m_dlgOrder->m_snapshotMktData);
@@ -805,6 +810,11 @@ void CClient2Dlg::currentTime(long time)
 {
 	CString displayString;
 	displayString.Format("current time = %d", time);
+	//Message Box
+	MessageBox(displayString);
+
+
+	// Put in the message list box
 	int i =  m_orderStatus.AddString(displayString);
 
 	// bring into view
@@ -908,6 +918,7 @@ void CClient2Dlg::tickGeneric(TickerId tickerId, TickType tickType, double value
 
 	int top = i - N < 0 ? 0 : i - N;
 	m_ticks.SetTopIndex( top);
+
 }
 
 void CClient2Dlg::tickString(TickerId tickerId, TickType tickType, const CString& value)
@@ -919,6 +930,7 @@ void CClient2Dlg::tickString(TickerId tickerId, TickType tickType, const CString
 
 	int top = i - N < 0 ? 0 : i - N;
 	m_ticks.SetTopIndex( top);
+	
 }
 
 void CClient2Dlg::tickEFP(TickerId tickerId, TickType tickType, double basisPoints, const CString& formattedBasisPoints,
@@ -1735,4 +1747,119 @@ void CClient2Dlg::OnReqMarketDataType()
 
 	// request market data type
 	m_pClient->reqMarketDataType( m_dlgOrder->m_marketDataType);
+}
+void CClient2Dlg::ConnectI(CString ipAddress, CString port, CString clientId){
+	{
+		CString displayString;
+		displayString.Format( "Connecting to Tws using clientId %s ...", clientId);
+		int i = m_orderStatus.AddString( displayString);
+		m_orderStatus.SetTopIndex( i);
+	}
+
+	m_pClient->eConnect( ipAddress, atoi(port), atoi(clientId));
+
+	if( m_pClient->serverVersion() > 0)	{
+		CString displayString;
+		displayString.Format( "Connected to Tws server version %d at %s.",
+			m_pClient->serverVersion(), m_pClient->TwsConnectionTime());
+		int i = m_orderStatus.AddString( displayString);
+		m_orderStatus.SetTopIndex( i);
+	}
+}
+
+void CClient2Dlg::parseFunction(CString code, CString filePath){
+	int id = atoi(code);
+	char text[1000];
+	sprintf(text, "The inputs are: Code String: %s, Int: %d, Path: %s", code, id, filePath);
+	MessageBox(text);
+	std::ifstream file;
+	if(filePath){
+		file.open(filePath);
+	}
+	Contract *newContract = new Contract();
+	switch (id)	{
+	case ID_AUTOEMA:
+		break;
+	case ID_AUTOEMA2:
+		break;
+	case ID_CANEMA:
+		break;
+	case ID_CANMACD:
+		break;
+	case ID_CANORDER:
+		break;
+	case ID_CANPAIR:
+		break;
+	case ID_CANTICK:
+		break;
+	case ID_CONNECT:
+		char ipAddr[50];
+		char port[20];
+		char clientID[5];
+		file.getline(ipAddr, 50, '\n');
+		file.getline(port, 20, '\n');
+		file.getline(clientID, 5, '\n');
+		
+		sprintf(text, "The inputs are: Code String: %s, Path: %s, Client ID: %s", ipAddr, port, clientID);
+		MessageBox(text);
+		
+		ConnectI(ipAddr, port, clientID);
+		break;
+	case ID_CTIME:
+		OnReqCurrentTime();
+		break;
+	case ID_DISCONNECT:
+		OnDisconnect();
+		break;
+	case ID_EXIT:
+		break;
+	case ID_REQBAR:
+		break;
+	case ID_REQMACD:
+		break;
+	case ID_REQTICK:
+		char id[5];
+		char stock[100];
+		//m_dlgOrder->init( this, "Request Market Data", CDlgOrder::REQ_MKT_DATA, m_managedAccounts);
+		//CString m_genericTicks = _T("100,101,104,105,106,107,165,221,225,233,236,258,293,294,295,318");
+		file.getline(id, 5, '\n');
+		file.getline(stock, 100, '\n');
+		sprintf(text, "1: The inputs are: ID: %d, StockId: %s, BOOL: %d", atoi(id), stock, (int)false);
+		MessageBox(text);
+
+		newContract->conId = atoi(id);
+		newContract->symbol = stock;
+		newContract->exchange = "SMART";
+		newContract->primaryExchange = "ISLAND";
+		newContract->currency = "USD";
+		newContract->strike = 0;
+		newContract->includeExpired = false;
+		newContract->secType = "STK";
+		m_pClient->reqMktData( atoi(id), *newContract,
+			m_dlgOrder->m_genericTicks, false);
+		break;
+	case ID_ORDER:
+		break;
+	case ID_CLRPOS:
+		break;
+	case ID_PAIR:
+		break;
+	default:
+		break;
+	}
+}
+
+void CClient2Dlg::OnBnClickedButton1()
+{
+	Input_Dialog dlg;
+	if( dlg.DoModal() == IDCANCEL) {
+		return;
+	}
+	/*CString message;
+	message.FormatMessage(_T("The inputs are: Code String: %s, Path: %s"), dlg.m_actioncode.GetString(), dlg.m_filepath.GetString());
+	MessageBox(message);*/
+	parseFunction(dlg.m_actioncode, dlg.m_filepath);
+	
+	
+	// TODO: Add your control notification handler code here
 }
