@@ -5,17 +5,47 @@
 #ifndef STOCK_H
 #define STOCK_H
 
-#include<string>
+#include "EMA.h"
+#include <string>
+#include<fstream>
+#include<vector>
+#include<map>
+
+// Strategy idea: Exponential Ribbon
 
 // Dummy stock class
 class Stock{
-    std::string tick;
     public:
-       // make a constructor and pass in tick / etc. eventually
-       // make a destructor
-       float getEMA();
-       float getMACD();
-       std::string getTick();
+        Stock(std::string tick);
+		~Stock();
+        double getEMA(int index);
+        double getMACD();
+        double getPrice();
+        std::string getTick();
+
+		void newEMA(int num_periods, int id);
+		void newMACD(int id);
+
+		// see which ema and macd id it is and update it
+		// and write to file
+		void update(int id, double price);
+
+	private:
+	    std::string tick;
+
+		// EMA and MACD objects (mapped by id)
+		std::map<int, EMA*> EMAs;
+		std::map<int, MACD*> MACDs;
+
+		// Files for Price, EMA and MACD
+		std::ofstream fPrice;
+		std::mad<int, std::ofstream> fEMA;
+		std::map<int, std::ofstream> fMACD;
+		
+		// Most recent EMA, MACD and Price values
+		std::map<int, double> curEMA;
+		std::map<int, double> curMACD;
+		double curPrice;
 };
 
 #endif

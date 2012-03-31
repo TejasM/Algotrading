@@ -12,6 +12,7 @@
 using namespace std;
 
 // dummy risk management and order placement modules (not part of this class?)
+// E.g. they could be functions in this class
 
 float getInvestmentAmount (string order, float diff, int count) {
 
@@ -38,6 +39,15 @@ void placeOrder(string order, string tick, float amount) {
 PairsTrading::PairsTrading(Stock * _s1, Stock * _s2) {
     s1 = _s1;    
     s2 = _s2;
+
+	// Gather initial EMAs
+    s1Data.initialEMA = s1->getEMA();
+    s2Data.initialEMA = s2->getEMA();
+
+    // stocks are uncorrelated
+    state = UNCORRELATED;
+    int correlatedCount = 0; // been correlated for 0 seconds
+
 }
 
 PairsTrading::~PairsTrading() {
@@ -51,8 +61,8 @@ int PairsTrading::getState() {
 
 // Use absolute EMA difference to find percent change
 void PairsTrading::calculateDiff() {
-    s1Data.currentEMA = s1->getEMA();
-    s2Data.currentEMA = s2->getEMA();
+    s1Data.currentEMA = s1->getEMA(0);
+    s2Data.currentEMA = s2->getEMA(0);
     
     // calculate percent change of each
     s1Data.percentChange = (s1Data.currentEMA - s1Data.initialEMA) / 100;
@@ -70,16 +80,16 @@ void PairsTrading::State1() {
     }
     else {
         correlatedCount = 0;
-        s1Data.initialEMA = s1->getEMA();
-        s2Data.initialEMA = s2->getEMA();
+        s1Data.initialEMA = s1->getEMA(0);
+        s2Data.initialEMA = s2->getEMA(0);
     }
     
     if (correlatedCount >= correlatedThreshold) {
         state = CORRELATED;
 
         // in case we diverge right away
-        s1Data.EMAatDivergence = s1->getEMA();
-        s1Data.EMAatDivergence = s2->getEMA();
+        s1Data.EMAatDivergence = s1->getEMA(0);
+        s1Data.EMAatDivergence = s2->getEMA(0);
     }
 }
 
@@ -95,8 +105,8 @@ void PairsTrading::State2() {
     }
     else {
         // update so it's always the value right before we diverge
-        s1Data.EMAatDivergence = s1->getEMA();
-        s1Data.EMAatDivergence = s2->getEMA();
+        s1Data.EMAatDivergence = s1->getEMA(0);
+        s1Data.EMAatDivergence = s2->getEMA(0);
     }
 }
 
@@ -160,47 +170,14 @@ void PairsTrading::State4() {
 }
 
 // Begin algorithmic trading
-void PairsTrading::start() {
-    // Gather initial EMAs
-    s1Data.initialEMA = s1->getEMA();
-    s2Data.initialEMA = s2->getEMA();
+void PairsTrading::doPairsTrading() { // Called Every Timestep
 
-    // stocks are uncorrelated
-    state = UNCORRELATED;
-    int correlatedCount = 0; // been correlated for 0 seconds
+    // update EMAdifference (see design documentation) and find state
+    calculateDiff();
 
-    // in multithreaded program this would be replaced by setting
-    // the stop flag instead of having a count
-    int count=0;
-    
-    // while(stop != 0) {
-    while (count < 3) {
-        count++;
-        cout << "."; // remove later
-        delay(2);    // remove later
-
-        // update EMAdifference (see design documentation) and find state
-        calculateDiff();
-
-        // handle current state
-        if (state == 1) State1();
-        else if (state == 2) State2();
-        else if (state == 3) State3();
-        else State4();
-    }
-    cout << endl;   // remove later
-}
-
-// currently unused (for testing only)
-float PairsTrading::getDecision() {
-    if ( s1->getMACD() > s1->getEMA() ) {
-         cout << "Stock 1: useMACD" << endl;
-    }
-    else cout << "Stock 1: useEMA" << endl;
-
-    if ( s2->getMACD() > s2->getEMA() ) {
-         cout << "Stock 2: useMACD" << endl;
-    }
-    else cout << "Stock 2: useEMA" << endl;
-    return 0;
+    // handle current state
+    if (state == 1) State1();
+    else if (state == 2) State2();
+    else if (state == 3) State3();
+    else State4();
 }
