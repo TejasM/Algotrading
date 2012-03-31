@@ -14,7 +14,7 @@ using namespace std;
 // dummy risk management and order placement modules (not part of this class?)
 // E.g. they could be functions in this class
 
-float getInvestmentAmount (string order, float diff, int count) {
+double getInvestmentAmount (string order, double diff, int count) {
 
     /*
         Consider:
@@ -31,18 +31,20 @@ float getInvestmentAmount (string order, float diff, int count) {
 }
 
 // requires order management module
-void placeOrder(string order, string tick, float amount) {
+void placeOrder(string order, string tick, double amount) {
 }
 
 // PairsTrading Class
 
-PairsTrading::PairsTrading(Stock * _s1, Stock * _s2) {
+PairsTrading::PairsTrading(Stock * _s1, int EMA_id1, Stock * _s2, int EMA_id2) {
     s1 = _s1;    
     s2 = _s2;
 
 	// Gather initial EMAs
-    s1Data.initialEMA = s1->getEMA();
-    s2Data.initialEMA = s2->getEMA();
+    s1Data.id = EMA_id1;
+    s2Data.id = EMA_id2;
+    s1Data.initialEMA = s1->getEMA(s1Data.id);
+    s2Data.initialEMA = s2->getEMA(s2Data.id);
 
     // stocks are uncorrelated
     state = UNCORRELATED;
@@ -128,7 +130,7 @@ void PairsTrading::State3() {
     if (s1Data.currentEMA < s1Data.EMAatDivergence) {
         // part of Risk management module (separate class? inputs?)
         // or we could make one risk management module for just this algorithm
-        float buyAmount = getInvestmentAmount ("buy",
+        double buyAmount = getInvestmentAmount ("buy",
                               s1Data.currentEMA - s1Data.EMAatDivergence,
                               divergedCount
                               );
@@ -137,7 +139,7 @@ void PairsTrading::State3() {
         placeOrder("buy", s1->getTick(), buyAmount);
     }
     else { // stock 1 is rising
-        float sellAmount = getInvestmentAmount ("sell",
+        double sellAmount = getInvestmentAmount ("sell",
                               s1Data.currentEMA - s1Data.EMAatDivergence,
                               divergedCount
                               );
@@ -148,14 +150,14 @@ void PairsTrading::State3() {
     if (s2Data.currentEMA < s2Data.EMAatDivergence) {
         // part of Risk management module (separate class? inputs?)
         // or we could make one risk management module for just this algorithm
-        float buyAmount = getInvestmentAmount ("buy",
+        double buyAmount = getInvestmentAmount ("buy",
                               s2Data.currentEMA - s2Data.EMAatDivergence,
                               divergedCount
                               );
         placeOrder("buy", s2->getTick(), buyAmount);
     }
     else { // stock 2 is rising
-        float sellAmount = getInvestmentAmount ("sell",
+        double sellAmount = getInvestmentAmount ("sell",
                               s2Data.currentEMA - s2Data.EMAatDivergence,
                               divergedCount
                               );

@@ -2,11 +2,11 @@
  * Stock class
  */
 
-#ifndef STOCK_H
+#ifndef STOCK_H 
 #define STOCK_H
 
 #include "EMA.h"
-#include <string>
+#include<string>
 #include<fstream>
 #include<vector>
 #include<map>
@@ -18,8 +18,8 @@ class Stock{
     public:
         Stock(std::string tick);
 		~Stock();
-        double getEMA(int index);
-        double getMACD();
+        double getEMA(int id);
+        double getMACD(int id);
         double getPrice();
         std::string getTick();
 
@@ -39,8 +39,8 @@ class Stock{
 
 		// Files for Price, EMA and MACD
 		std::ofstream fPrice;
-		std::mad<int, std::ofstream> fEMA;
-		std::map<int, std::ofstream> fMACD;
+		std::map<int, std::ofstream*> fEMA;
+		std::map<int, std::ofstream*> fMACD;
 		
 		// Most recent EMA, MACD and Price values
 		std::map<int, double> curEMA;

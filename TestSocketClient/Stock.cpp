@@ -3,9 +3,6 @@
  */
 
 #include "Stock.h"
-#include<fstream>
-#include<ctime>
-#define timestep 1
 
 using namespace std;
 
@@ -33,7 +30,7 @@ Stock::~Stock() {
 	fPrice.close();
 }
 
-Stock::newEMA(int num_periods, int id) {
+void Stock::newEMA(int num_periods, int id) {
 
 	// Update the EMAs map
 	EMA * newEMA = new EMA (num_periods);
@@ -45,19 +42,19 @@ Stock::newEMA(int num_periods, int id) {
 	// Update file map
 	string filename = this->tick + "_EMA_Time";
 	char temp [10];
-	itoa(timestep, temp, 10);
+	itoa(num_periods, temp, 10);
 	filename += temp;
 	filename += "s.txt";
-	fEMA.at(i).open(filename.c_str());
+	fEMA.at(id)->open(filename.c_str());
 
-	ofsream * out = new ofstream(filename.c_str());
+	ofstream * out = new ofstream(filename.c_str());
 //	fEMA.insert( make_pair(id, out) ); // don't need this
 	fEMA[id] = out;
-	fEMA[id] << "EMA" << endl;
+	*fEMA[id] << "EMA" << endl;
 }
 
 
-Stock::newMACD(int id) {
+void Stock::newMACD(int id) {
 
 	// Update the MACD map
 	MACD * newMACD= new MACD ();
@@ -67,29 +64,25 @@ Stock::newMACD(int id) {
 	curMACD[id] = -1;
 	
 	// Update file map
-	string filename = this->tick + "_MACD_Time";
-	char temp [10];
-	itoa(timestep, temp, 10);
-	filename += temp;
-	filename += "s.txt";
-	fMACD.at(i).open(filename.c_str());
+	string filename = this->tick + "_MACD.txt";
+	fMACD.at(id)->open(filename.c_str());
 
-	ofsream * out = new ofstream(filename.c_str());
+	ofstream * out = new ofstream(filename.c_str());
 	fMACD[id] = out;
-	fMACD[id] << "MACD\tHistogram\tSignal" << endl;
+	*fMACD[id] << "MACD\tHistogram\tSignal" << endl;
 }
 
 
-double Stock::getEMA(int index) {
-	if (curEMA.find(index) != curEMA.end()) {
-		return curEMA[index];
+double Stock::getEMA(int id) {
+	if (curEMA.find(id) != curEMA.end()) {
+		return curEMA[id];
 	}
 	return -1;
 }
 
-double Stock::getMACD() {
-	if (curMACD.find(index) != curMACD.end()) {
-		return curMACD[index];
+double Stock::getMACD(int id) {
+	if (curMACD.find(id) != curMACD.end()) {
+		return curMACD[id];
 	}
 	return -1;
 }
@@ -112,22 +105,22 @@ void Stock::update(int id, double price) {
 	// Look for the EMA corresponding to this id
 	if (EMAs.find(id) != EMAs.end()) {
 		curEMA[id] = -1;
-		curEMA[i] = EMAs[i]->calculateEMA(price);
-		if (EMAs[i]->isValid()) {
+		curEMA[id] = EMAs[id]->calculateEMA(price);
+		if (EMAs[id]->isValid()) {
 			// write to file
-			fEMA[i] << curEMA[i] << endl;
+			*fEMA[id] << curEMA[id] << endl;
 		}
 	}
 
 	// Look for the MACD corresponding to this id
 	if (MACDs.find(id) != MACDs.end()) {
 		curMACD[id] = -1;
-		curMACD[i] = MACDs[i]->calculateMACD(price);
-		if (MACDs[i]->isValid()) {
-			double histogram = MACDs[i]->getHistogram();
-			double signal = MACDs[i]->getSignal();
+		curMACD[id] = MACDs[id]->calculateMACD(price);
+		if (MACDs[id]->isValid()) {
+			double histogram = MACDs[id]->getHistogram();
+			double signal = MACDs[id]->getSignal();
 			// write to file
-			fMACD[i] << curMACD[i] << "\t" << histogram << "\t" << signal << endl;
+			*fMACD[id] << curMACD[id] << "\t" << histogram << "\t" << signal << endl;
 		}
 	}
 }

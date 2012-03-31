@@ -18,14 +18,14 @@
 #define DIVERGED 3
 #define FAILED 4
 
-// timesteps we need to be correlated
+// time steps we need to be correlated
 #define correlatedThreshold 10
 
 // PairsTrading class
 
 class PairsTrading {
     public:
-        PairsTrading(Stock * _s1, Stock * _s2);
+        PairsTrading(Stock * _s1, int EMA_id1, Stock * _s2, int EMA_id2);
         ~PairsTrading();
         int getState(); // not used
         void doPairsTrading();
@@ -36,7 +36,8 @@ class PairsTrading {
 
         // store info for each stock
         struct StockInfo {
-            double initialEMA; // at start of state 1
+			int id; // EMA id (for getEMA(id))
+			double initialEMA; // at start of state 1
             double currentEMA;
             double percentChange;
             double EMAatDivergence;
@@ -45,8 +46,8 @@ class PairsTrading {
         StockInfo s1Data, s2Data;
 
         int state;
-        int correlatedCount; // timesteps we've been correlated
-        int divergedCount; // timesteps we've been diverged
+        int correlatedCount; // seconds we've been correlated
+        int divergedCount; // seconds we've been diverged
 
         double EMAdifference; // current EMA difference (%)
 
