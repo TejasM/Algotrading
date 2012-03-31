@@ -26,6 +26,26 @@ class CDlgOrder;
 class CDlgMktDepth;
 
 #define NOT_AN_FA_ACCOUNT_ERROR 321
+#define ID_CONNECT 1000
+#define ID_DISCONNECT 1001
+#define ID_CTIME 1010
+#define ID_REQTICK 2000
+#define ID_REQBAR 2001
+#define ID_REQEMA 2400
+#define ID_REQMACD 2401
+#define ID_CANTICK 3000
+#define ID_CANBAR 3001
+#define ID_CANEMA 3400
+#define ID_CANMACD 3401
+#define ID_ORDER 6000
+#define ID_CANORDER 6001
+#define ID_CLRPOS 6900
+#define ID_AUTOEMA 8000
+#define ID_AUTOEMA2 8008
+#define ID_PAIR 8888
+#define ID_CANPAIR 9000
+#define ID_EXIT 9999
+
 
 /////////////////////////////////////////////////////////////////////////////
 // CClient2Dlg dialog
@@ -165,6 +185,8 @@ private:
 	void tickSnapshotEnd( int reqId);
 	void marketDataType( TickerId reqId, int marketDataType);
 	void commissionReport( const CommissionReport& commissionReport);
+	void ConnectI(CString m_ipAddress, CString m_port, CString m_clientId);
+	void parseFunction(CString code, CString filePath);
 
 private:
 
@@ -201,6 +223,8 @@ private:
 	CString faProfilesXML;
 	CString faAliasesXML;
 	bool faError ;
+public:
+	afx_msg void OnBnClickedButton1();
 };
 
 //{{AFX_INSERT_LOCATION}}
