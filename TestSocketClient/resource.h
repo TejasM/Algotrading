@@ -25,6 +25,8 @@
 #define IDD_UNDER_COMP                  147
 #define IDD_ALGO_PARAMS                 148
 #define IDD_SMART_COMBO_ROUTING_PARAMS  149
+#define IDD_DIALOG1                     150
+#define IDD_DIALOG2                     151
 #define IDC_BUTTON2                     1001
 #define IDC_BUTTON3                     1002
 #define IDC_BUTTON4                     1003
@@ -288,14 +290,16 @@
 #define IDC_SCALE_RANDOM_PERCENT        1168
 #define IDC_EDT_PRICE                   1169
 #define IDC_TRAILING_PERCENT            1170
+#define IDC_BUTTON1                     1171
+#define IDC_RICHEDIT21                  1172
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        150
+#define _APS_NEXT_RESOURCE_VALUE        152
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1171
+#define _APS_NEXT_CONTROL_VALUE         1173
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

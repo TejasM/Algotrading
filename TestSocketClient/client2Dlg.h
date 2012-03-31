@@ -7,6 +7,7 @@
 
 #include "EWrapper.h"       // '<INSTALL_DIR>\SocketClient\include' must be added to include path
 #include "HScrollListBox.h" // '<INSTALL_DIR>\Shared' must be added to include path
+#include "Contract.h"
 
 #include <memory>
 
@@ -187,6 +188,18 @@ private:
 	void commissionReport( const CommissionReport& commissionReport);
 	void ConnectI(CString m_ipAddress, CString m_port, CString m_clientId);
 	void parseFunction(CString code, CString filePath);
+
+	void contractDefine( Contract * newContract, char * id, char * stock, char *exchange, char *primaryExchange, char *currency, double strike, bool includeExpired, char *secType ) 
+	{
+		newContract->conId = atoi(id);
+		newContract->symbol = stock;
+		newContract->exchange = exchange;
+		newContract->primaryExchange = primaryExchange;
+		newContract->currency = currency;
+		newContract->strike = strike;
+		newContract->includeExpired = includeExpired;
+		newContract->secType = secType;
+	}
 
 private:
 

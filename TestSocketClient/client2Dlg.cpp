@@ -8,7 +8,8 @@
 #include "DlgAccount.h"
 #include "DlgConnect.h"
 #include "DlgMktDepth.h"
-#include "Contract.h"
+#include "Stock.h"
+#include "PairsTrading.h"
 #include "Execution.h"
 #include "ScannerSubscription.h"
 #include "DlgNewsBulletins.h"
@@ -20,8 +21,17 @@
 #include "CommissionReport.h"
 #include "Input_Dialog.h"
 #include <fstream>
+#include <map>
 
 #include "OrderState.h"
+
+std::map<int, int> idToAction;
+std::map<int, Stock *> idToStock;
+std::map<Stock *, PairsTrading *> stockToPairs;
+std::map<CString, Stock *> tickToStock;
+//map <Stock *, EMACrossover1 *> stockToCrossover1;
+//map <Stock *, EMACrossover2 *> stockToCrossover2;
+
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -1768,16 +1778,20 @@ void CClient2Dlg::ConnectI(CString ipAddress, CString port, CString clientId){
 }
 
 void CClient2Dlg::parseFunction(CString code, CString filePath){
-	int id = atoi(code);
+	int actionID = atoi(code);
 	char text[1000];
-	sprintf(text, "The inputs are: Code String: %s, Int: %d, Path: %s", code, id, filePath);
+	sprintf(text, "The inputs are: Code String: %s, Int: %d, Path: %s", code, actionID, filePath);
 	MessageBox(text);
 	std::ifstream file;
 	if(filePath){
 		file.open(filePath);
 	}
+	Stock *newStock;
+	char id[5];
+	char stock[100];
+	char barSize[2];
 	Contract *newContract = new Contract();
-	switch (id)	{
+	switch (actionID)	{
 	case ID_AUTOEMA:
 		break;
 	case ID_AUTOEMA2:
@@ -1814,12 +1828,23 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 	case ID_EXIT:
 		break;
 	case ID_REQBAR:
+
+		file.getline(id, 5, '\n');
+		file.getline(stock, 100, '\n');
+		file.getline(barSize, 2, '\n');
+
+		contractDefine(newContract, id, stock,"SMART", "ISLAND", "USD", 0, false, "STK" );
+		newStock = new Stock();
+		idToStock[atoi(id)] = newStock;
+		idToAction[atoi(id)] = actionID;
+		tickToStock[stock] = newStock;
+		m_pClient->reqRealTimeBars( atoi(id), *newContract,
+			atoi(barSize) /* TODO: parse and use m_dlgOrder->m_barSizeSetting) */,
+			"TRADES", true);
 		break;
 	case ID_REQMACD:
 		break;
 	case ID_REQTICK:
-		char id[5];
-		char stock[100];
 		//m_dlgOrder->init( this, "Request Market Data", CDlgOrder::REQ_MKT_DATA, m_managedAccounts);
 		//CString m_genericTicks = _T("100,101,104,105,106,107,165,221,225,233,236,258,293,294,295,318");
 		file.getline(id, 5, '\n');
@@ -1827,14 +1852,8 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 		sprintf(text, "1: The inputs are: ID: %d, StockId: %s, BOOL: %d", atoi(id), stock, (int)false);
 		MessageBox(text);
 
-		newContract->conId = atoi(id);
-		newContract->symbol = stock;
-		newContract->exchange = "SMART";
-		newContract->primaryExchange = "ISLAND";
-		newContract->currency = "USD";
-		newContract->strike = 0;
-		newContract->includeExpired = false;
-		newContract->secType = "STK";
+		contractDefine(newContract, id, stock,"SMART", "ISLAND", "USD", 0, false, "STK" );
+		idToAction[atoi(id)] = actionID;
 		m_pClient->reqMktData( atoi(id), *newContract,
 			m_dlgOrder->m_genericTicks, false);
 		break;
