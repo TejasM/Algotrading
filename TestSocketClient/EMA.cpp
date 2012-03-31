@@ -2,7 +2,7 @@
 
 
 /* EMA */
-EMA::EMA(int numPeriods) :  prevEMA(0), validCount(numPeriods)
+EMA::EMA(int numPeriods) :  curEMA(0), validCount(numPeriods)
 {
 	alpha = 2/(numPeriods+1); 
 }
@@ -15,16 +15,20 @@ bool EMA::isValid() {
 	return (validCount <= 0);
 }
 
-double EMA::getEMA(double curVal) {
-	prevEMA = curVal * alpha + prevEMA * (1 - alpha); //calculate EMA, store it
+double EMA::calculateEMA(double curVal) {
+	curEMA = curVal * alpha + curEMA * (1 - alpha); //calculate EMA, store it
 	if (validCount > 0) {
 		validCount--;
 	}
-	return prevEMA;
+	return curEMA;
+}
+
+double EMA::getEMA() {
+	return curEMA;
 }
 
 //MACD constructor
-MACD::MACD(int slowPeriod, int fastPeriod, int signalPeriod) : slow(slowPeriod), fast(fastPeriod), signal(signalPeriod)
+MACD::MACD(int slowPeriod, int fastPeriod, int signalPeriod) : slow(slowPeriod), fast(fastPeriod), signal(signalPeriod), curMACD(0), curHistogram(0), curSignal(0)
 {
 }
 
@@ -32,12 +36,24 @@ MACD::~MACD()
 {
 }
 
-bool MACD::getMACD(double slowValue, double fastValue, double *macd, double *sig, double *histogram)
+double MACD::calculateMACD(double curVal)
 {
-	*macd = fast.getEMA(fastValue) - slow.getEMA(slowValue);
-	*sig = signal.getEMA(*macd);
-	*histogram = *macd - *sig;
-	return isValid();
+	curMACD = fast.calculateEMA(curVal) - slow.calculateEMA(curVal);
+	curSignal = signal.calculateEMA(curMACD);
+	curHistogram = curMACD - curSignal;
+	return curMACD;
+}
+
+double MACD::getMACD() {
+	return curMACD;
+}
+
+double MACD::getHistogram() {
+	return curHistogram;
+}
+
+double MACD::getSignal() {
+	return curSignal;
 }
 
 

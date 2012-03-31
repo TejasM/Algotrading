@@ -11,13 +11,14 @@ using namespace std;
 /* The EMA Class. Used to calculate an exponential moving average. The class is for computation only, and has no notion of what stock it is being used for */
 
 class EMA {
-	double prevEMA;
+	double curEMA;
 	int validCount; //used to calculate whether or not EMA is valid because not enough computations have been done. Counts down from numPeriods
 	double alpha; //ema constant
 public:
 	EMA(int numPeriods);
 	~EMA();
-	double getEMA(double curVal); //compute the next sequence in EMA based on stored previous value and passed in paramter
+	double calculateEMA(double curVal); //compute the next sequence in EMA based on stored previous value and passed in paramter
+	double getEMA();
 	bool isValid(); //is the EMA valid
 };
 
@@ -32,23 +33,18 @@ class MACD {
 	EMA slow; //a slow EMA, traditionally 26
 	EMA fast; //a fast EMA, traditionally 12
 	EMA signal; //EMA of EMAfast – EMAslow, traditionally 9. 
+	double curMACD;
+	double curSignal;
+	double curHistogram;
 public:
 	MACD(int slowPeriod = 12, int fastPeriod = 26, int signalPeriod = 9); //default args just call MACD()
-	//Call this function with slowValue, fastValue. Pass in references to assign macd/signal/histogram. CHECK THE BOOL
-	bool getMACD(double slowValue, double fastValue, double *macd, double *signal, double *histogram);
+	//Call this function with slowValue, fastValue. Pass in references to assign macd/signal/histogram. 
+	double calculateMACD(double curVal);
+	double getMACD();
+	double getHistogram();
+	double getSignal();
 	~MACD();
 	bool isValid();
-};
-
-// Dummy stock class
-class Stock{
-    std::string tick;
-    public:
-       // make a constructor and pass in tick / etc. eventually
-       // make a destructor
-       float getEMA();
-       float getMACD();
-       std::string getTick();
 };
 
 #endif
