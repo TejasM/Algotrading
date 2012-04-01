@@ -6,7 +6,7 @@
 #define EMA_H
 
 #include <iostream>
-using namespace std;
+//using namespace std;
 
 /* The EMA Class. Used to calculate an exponential moving average. The class is for computation only, and has no notion of what stock it is being used for */
 

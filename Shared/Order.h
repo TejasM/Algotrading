@@ -12,6 +12,7 @@
 #define UNSET_DOUBLE DBL_MAX
 #define UNSET_INTEGER INT_MAX
 
+
 enum Origin { CUSTOMER,
               FIRM,
               UNKNOWN };
