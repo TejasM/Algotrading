@@ -56,8 +56,15 @@ double MACD::getSignal() {
 	return curSignal;
 }
 
-
 bool MACD::isValid()
 {
 	return (signal.isValid() && slow.isValid()); //both signal and slow must be valid
+}
+
+double MACD::getFast() {
+	return fast.getEMA();
+}
+
+double MACD::getSlow() {
+	return slow.getEMA();
 }

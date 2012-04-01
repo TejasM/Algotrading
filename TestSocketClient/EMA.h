@@ -43,6 +43,8 @@ public:
 	double getMACD();
 	double getHistogram();
 	double getSignal();
+	double getFast(); 
+	double getSlow();
 	~MACD();
 	bool isValid();
 };
