@@ -31,6 +31,7 @@ std::map<int, int> idToAction;
 std::map<int, Stock *> idToStock;
 std::map<Stock *, PairsTrading *> stockToPairs;
 std::map<CString, Stock *> tickToStock;
+std::map<int, Order *> idToOrder;
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -895,7 +896,7 @@ void CClient2Dlg::receiveFA(faDataType pFaDataType, const CString& cxml)
 
 	}
 }
-
+int count = 0;
 void CClient2Dlg::tickPrice( TickerId tickerId, TickType tickType, double price, int canAutoExecute)
 {
 	CString str;
@@ -923,12 +924,18 @@ void CClient2Dlg::tickPrice( TickerId tickerId, TickType tickType, double price,
 		newStock->update(tickerId, price);
 		break;
 	case ID_REQMACD:
-		break;
-	case ID_ORDER:
-		break;
-	case ID_CLRPOS:
+		newStock = idToStock[tickerId];
+		newStock->update(tickerId, price);
 		break;
 	case ID_PAIR:
+		newStock = idToStock[tickerId];
+		newStock->update(tickerId, price);
+		count++;
+		if(count == 2){
+			PairsTrading *pairs = stockToPairs[newStock];
+			pairs->doPairsTrading();
+			count = 0;
+		}
 		break;
 	default:
 		break;
@@ -1819,21 +1826,49 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 	char stock[100];
 	char barSize[2];
 	char numOfBars[10];
+	char orderType[10];
+	char orderSize[10];
+	char action[10];
+	char limitPrice[10];
+
+
 	Contract *newContract = new Contract();
+
+	PairsTrading *pairs;
+	Stock *newStock2;
+	Contract *newContract2;
+	
+	Order *newOrder;
 	switch (actionID)	{
 	case ID_AUTOEMA:
+		//TO DO
 		break;
 	case ID_AUTOEMA2:
+		//TO DO
 		break;
 	case ID_CANEMA:
+		file.getline(id, 5, '\n');
+		m_pClient->cancelRealTimeBars(atoi(id));
+		idToStock[atoi(id)] = NULL;
+		idToAction[atoi(id)] = '\0';
 		break;
 	case ID_CANMACD:
+		file.getline(id, 5, '\n');
+		m_pClient->cancelRealTimeBars(atoi(id));
+		idToStock[atoi(id)] = NULL;
+		idToAction[atoi(id)] = '\0';
 		break;
 	case ID_CANORDER:
+		file.getline(id, 5, '\n');
 		break;
 	case ID_CANPAIR:
+		file.getline(id, 5, '\n');
 		break;
 	case ID_CANTICK:
+		file.getline(id, 5, '\n');
+		m_pClient->cancelRealTimeBars(atoi(id));
+		idToStock[atoi(id)] = NULL;
+		idToAction[atoi(id)] = '\0';
 		break;
 	case ID_CONNECT:
 		char ipAddr[50];
@@ -1843,8 +1878,8 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 		file.getline(port, 20, '\n');
 		file.getline(clientID, 5, '\n');
 
-		sprintf(text, "The inputs are: Code String: %s, Path: %s, Client ID: %s", ipAddr, port, clientID);
-		MessageBox(text);
+		/*sprintf(text, "The inputs are: Code String: %s, Path: %s, Client ID: %s", ipAddr, port, clientID);
+		MessageBox(text);*/
 
 		ConnectI(ipAddr, port, clientID);
 		break;
@@ -1855,6 +1890,7 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 		OnDisconnect();
 		break;
 	case ID_EXIT:
+		exit(0);
 		break;
 	case ID_REQBAR:
 
@@ -1876,6 +1912,23 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 			"TRADES", true);
 		break;
 	case ID_REQMACD:
+		file.getline(id, 5, '\n');
+		file.getline(stock, 100, '\n');
+		file.getline(barSize, 2, '\n');
+		
+		contractDefine(newContract, id, stock,"SMART", "ISLAND", "USD", 0, false, "STK" );
+		if(tickToStock[stock]){
+			newStock = tickToStock[stock];
+		}else{
+			newStock = new Stock(stock);
+		}
+		newStock->newMACD(atoi(id));
+		idToStock[atoi(id)] = newStock;
+		idToAction[atoi(id)] = actionID;
+		tickToStock[stock] = newStock;
+		m_pClient->reqRealTimeBars( atoi(id), *newContract,
+			atoi(barSize) /* TODO: parse and use m_dlgOrder->m_barSizeSetting) */,
+			"TRADES", true);
 		break;
 	case ID_REQEMA:
 		file.getline(id, 5, '\n');
@@ -1910,10 +1963,72 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 			m_dlgOrder->m_genericTicks, false);
 		break;
 	case ID_ORDER:
+		file.getline(id, 5, '\n');
+		file.getline(stock, 100, '\n');
+		file.getline(action, 100, '\n');
+		file.getline(orderSize, 100, '\n');
+		file.getline(orderType, 100, '\n');
+		file.getline(limitPrice, 100, '\n');
+		newOrder = new Order();
+
+		contractDefine(newContract, id, stock,"SMART", "ISLAND", "USD", 0, false, "STK" );
+		newOrder->action = action;
+		newOrder->orderId = atoi(id);
+		newOrder->totalQuantity = atoi(orderSize);
+		newOrder->lmtPrice = strtod(limitPrice, NULL);
+		newOrder->orderType = orderType;
+		idToOrder[atoi(id)] = newOrder;
+		m_pClient->placeOrder(atoi(id), *newContract, *newOrder);
 		break;
 	case ID_CLRPOS:
 		break;
 	case ID_PAIR:
+
+		//Currently setup to get from user the pairs, easy to change to 3 or so of our own pairs.
+		file.getline(id, 5, '\n');
+		file.getline(stock, 100, '\n');
+
+
+		char id2[5];
+		char stock2[100];
+		file.getline(id2, 5, '\n');
+		file.getline(stock2, 100, '\n');
+
+		newContract2 = new Contract();
+		if(tickToStock[stock]){
+			newStock = tickToStock[stock];
+		}else{
+			newStock = new Stock(stock);
+		}
+		
+		if(tickToStock[stock2]){
+			newStock2 = tickToStock[stock2];
+		}else{
+			newStock2 = new Stock(stock);
+		}
+		
+		contractDefine(newContract, id, stock,"SMART", "ISLAND", "USD", 0, false, "STK" );
+		contractDefine(newContract2, id2, stock2,"SMART", "ISLAND", "USD", 0, false, "STK" );
+		pairs = new PairsTrading(newStock, atoi(id), newStock2, atoi(id2));
+
+		newStock->newEMA(5, atoi(id));
+		idToStock[atoi(id)] = newStock;
+		idToAction[atoi(id)] = actionID;
+		tickToStock[stock] = newStock;
+		stockToPairs[newStock] = pairs;
+
+		newStock2->newEMA(5, atoi(id2));
+		idToStock[atoi(id2)] = newStock2;
+		idToAction[atoi(id2)] = actionID;
+		tickToStock[stock] = newStock2;
+		stockToPairs[newStock2] = pairs;
+
+		m_pClient->reqRealTimeBars( atoi(id), *newContract,
+			5 /* TODO: parse and use m_dlgOrder->m_barSizeSetting) */,
+			"TRADES", true);
+		m_pClient->reqRealTimeBars( atoi(id2), *newContract2,
+			5 /* TODO: parse and use m_dlgOrder->m_barSizeSetting) */,
+			"TRADES", true);
 		break;
 	default:
 		break;
