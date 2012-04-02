@@ -1860,6 +1860,7 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 		break;
 	case ID_CANORDER:
 		file.getline(id, 5, '\n');
+		m_pClient->cancelOrder(atoi(id));
 		break;
 	case ID_CANPAIR:
 		file.getline(id, 5, '\n');
