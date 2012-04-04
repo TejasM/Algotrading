@@ -6,6 +6,7 @@
 #define STOCK_H
 
 #include "EMA.h"
+
 #include<string>
 #include<fstream>
 #include<vector>
@@ -18,8 +19,10 @@ class Stock{
     public:
         Stock(std::string tick);
 		~Stock();
-        double getEMA(int id);
-        double getMACD(int id);
+        EMA * getEMA(int id);
+        MACD * getMACD(int id);
+        double getCurEMA(int id);
+        double getCurMACD(int id);
         double getPrice();
         std::string getTick();
 

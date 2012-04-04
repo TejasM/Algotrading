@@ -3,6 +3,7 @@
  */
 
 #include "Stock.h"
+//#include "winbase.h"
 
 using namespace std;
 
@@ -10,7 +11,7 @@ using namespace std;
 Stock::Stock(string _tick) {
 
 	// initialize tick and times for EMA and MACD
-	_tick = tick;
+	tick = _tick;
 	curPrice = -1;
 
 	// Create and write to files
@@ -45,7 +46,6 @@ void Stock::newEMA(int num_periods, int id) {
 	itoa(num_periods, temp, 10);
 	filename += temp;
 	filename += "s.txt";
-	fEMA.at(id)->open(filename.c_str());
 
 	ofstream * out = new ofstream(filename.c_str());
 //	fEMA.insert( make_pair(id, out) ); // don't need this
@@ -65,7 +65,6 @@ void Stock::newMACD(int id) {
 	
 	// Update file map
 	string filename = this->tick + "_MACD.txt";
-	fMACD.at(id)->open(filename.c_str());
 
 	ofstream * out = new ofstream(filename.c_str());
 	fMACD[id] = out;
@@ -73,18 +72,32 @@ void Stock::newMACD(int id) {
 }
 
 
-double Stock::getEMA(int id) {
+double Stock::getCurEMA(int id) {
 	if (curEMA.find(id) != curEMA.end()) {
 		return curEMA[id];
 	}
 	return -1;
 }
 
-double Stock::getMACD(int id) {
+EMA * Stock::getEMA(int id) {
+	if (EMAs.find(id) != EMAs.end()) {
+		return EMAs[id];
+	}
+	return NULL;
+}
+
+double Stock::getCurMACD(int id) {
 	if (curMACD.find(id) != curMACD.end()) {
 		return curMACD[id];
 	}
 	return -1;
+}
+
+MACD * Stock::getMACD(int id) {
+	if (MACDs.find(id) != MACDs.end()) {
+		return MACDs[id];
+	}
+	return NULL;
 }
 
 double Stock::getPrice() {
@@ -98,9 +111,15 @@ string Stock::getTick() {
 void Stock::update(int id, double price) {
 
 	curPrice = price;
-
+	char text[100];
+	/*sprintf(text, "I am here updating");
+	MessageBox(text);*/
 	// write to file
-	fPrice << curPrice << endl;
+	if(fPrice.is_open()){
+		fPrice << curPrice << endl;
+	}else{
+		
+	}
 
 	// Look for the EMA corresponding to this id
 	if (EMAs.find(id) != EMAs.end()) {
