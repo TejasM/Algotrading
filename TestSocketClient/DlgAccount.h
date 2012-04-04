@@ -62,6 +62,8 @@ private:
 
 	CString m_accountName;
 	bool    m_complete;
+public:
+	afx_msg void OnLbnSelchangeList4();
 };
 
 //{{AFX_INSERT_LOCATION}}

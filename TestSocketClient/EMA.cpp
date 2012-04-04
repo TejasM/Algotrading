@@ -4,7 +4,7 @@ using namespace std;
 /* EMA */
 EMA::EMA(int numPeriods) :  curEMA(0), validCount(numPeriods)
 {
-	alpha = 2/(numPeriods+1); 
+	alpha = ((double)2)/((double)numPeriods+(double)1); 
 }
 
 EMA::~EMA()
@@ -28,7 +28,7 @@ double EMA::getEMA() {
 }
 
 //MACD constructor
-MACD::MACD(int slowPeriod, int fastPeriod, int signalPeriod) : slow(slowPeriod), fast(fastPeriod), signal(signalPeriod), curMACD(0), curHistogram(0), curSignal(0)
+MACD::MACD(int slowPeriod  , int fastPeriod , int signalPeriod) : slow(4), fast(2), signal(3), curMACD(0), curHistogram(0), curSignal(0)
 {
 }
 

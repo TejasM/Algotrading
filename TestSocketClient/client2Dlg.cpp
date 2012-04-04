@@ -120,7 +120,7 @@ CString getField( TickType tickType) {
 	default:                            return "unknown";
 	}
 }
-
+double money = 0;
 #define NUM_FA_ERROR_CODES 6
 static int faErrorCodes[NUM_FA_ERROR_CODES] =
 { 503, 504, 505, 522, 1100, NOT_AN_FA_ACCOUNT_ERROR } ;
@@ -541,9 +541,9 @@ void CClient2Dlg::OnReqAccountUpdate()
 	m_pClient->reqAccountUpdates(dlg.getSubscribe(), dlg.getAcctCode());
 
 	// Show the account details dialog if we are subscribing.
-	if ( dlg.getSubscribe() ) {
+	/*if ( dlg.getSubscribe() ) {
 		s_accountDlg.DoModal();
-	}
+	}*/
 }
 
 void CClient2Dlg::OnReqExecutions()
@@ -807,6 +807,7 @@ void CClient2Dlg::realtimeBar(TickerId reqId, long time, double open, double hig
 	// bring into view
 	int top = i - N < 0 ? 0 : i - N;
 	m_ticks.SetTopIndex( top);
+	doWork(reqId, close);
 }
 
 void CClient2Dlg::fundamentalData(TickerId reqId, const CString& data)
@@ -897,18 +898,14 @@ void CClient2Dlg::receiveFA(faDataType pFaDataType, const CString& cxml)
 	}
 }
 int count = 0;
-void CClient2Dlg::tickPrice( TickerId tickerId, TickType tickType, double price, int canAutoExecute)
-{
-	CString str;
-	str.Format( "id=%i  %s=%f  canAutoExecute=%d",
-		tickerId, (const char*)getField( tickType), price, canAutoExecute);
-	int i = m_ticks.AddString( str);
-
-	int top = i - N < 0 ? 0 : i - N;
-	m_ticks.SetTopIndex( top);
-
+void CClient2Dlg::doWork(TickerId tickerId, double price){
 	int actionCode = idToAction[tickerId];
 	Stock *newStock;
+	
+	char text[100];
+
+	/*sprintf(text, "1: The inputs are: ID: %d, Ticker ID: %d", actionCode, tickerId);
+	MessageBox(text);*/
 	switch (actionCode)
 	{
 	case ID_AUTOEMA:
@@ -917,6 +914,8 @@ void CClient2Dlg::tickPrice( TickerId tickerId, TickType tickType, double price,
 		break;
 	case ID_REQBAR:
 		newStock = idToStock[tickerId];
+		/*sprintf(text, "1: The inputs are: ID: %d", tickerId);
+		MessageBox(text);*/
 		newStock->update(tickerId, price);
 		break;
 	case ID_REQEMA:
@@ -931,15 +930,32 @@ void CClient2Dlg::tickPrice( TickerId tickerId, TickType tickType, double price,
 		newStock = idToStock[tickerId];
 		newStock->update(tickerId, price);
 		count++;
-		if(count == 2){
+		if(count == 1){
 			PairsTrading *pairs = stockToPairs[newStock];
-			pairs->doPairsTrading();
+			m_pClient->reqAccountUpdates(true,"Nothing");
+			while(money == 0){
+
+			}
+			sprintf(text, "Money: %f", money);
+			MessageBox(text);
+			pairs->doPairsTrading(money, m_pClient);
+			money = 0;
 			count = 0;
 		}
 		break;
 	default:
 		break;
 	}
+}
+void CClient2Dlg::tickPrice( TickerId tickerId, TickType tickType, double price, int canAutoExecute)
+{
+	CString str;
+	str.Format( "id=%i  %s=%f  canAutoExecute=%d",
+		tickerId, (const char*)getField( tickType), price, canAutoExecute);
+	int i = m_ticks.AddString( str);
+
+	int top = i - N < 0 ? 0 : i - N;
+	m_ticks.SetTopIndex( top);
 
 }
 
@@ -963,6 +979,7 @@ void CClient2Dlg::tickGeneric(TickerId tickerId, TickType tickType, double value
 
 	int top = i - N < 0 ? 0 : i - N;
 	m_ticks.SetTopIndex( top);
+	
 
 }
 
@@ -975,6 +992,7 @@ void CClient2Dlg::tickString(TickerId tickerId, TickType tickType, const CString
 
 	int top = i - N < 0 ? 0 : i - N;
 	m_ticks.SetTopIndex( top);
+	
 
 }
 
@@ -1352,7 +1370,8 @@ void CClient2Dlg::marketDataType( TickerId reqId, int marketDataType)
 void CClient2Dlg::updateAccountValue( const CString &key, const CString &val,
 	const CString &currency, const CString &accountName)
 {
-	s_accountDlg.updateAccountValue(key, val, currency, accountName);
+	money = atoi(val);
+	//s_accountDlg.updateAccountValue(key, val, currency, accountName);
 }
 
 void CClient2Dlg::updatePortfolio( const Contract& contract, int position,
@@ -1361,18 +1380,20 @@ void CClient2Dlg::updatePortfolio( const Contract& contract, int position,
 	double realizedPNL, const CString &accountName)
 
 {
-	s_accountDlg.updatePortfolio(contract, position, marketPrice, marketValue,
-		averageCost, unrealizedPNL, realizedPNL, accountName);
+	//s_accountDlg.updatePortfolio(contract, position, marketPrice, marketValue,
+		//averageCost, unrealizedPNL, realizedPNL, accountName);
 }
 
 void CClient2Dlg::updateAccountTime(const CString &timeStamp)
 {
-	s_accountDlg.updateAccountTime(timeStamp);
+	//s_accountDlg.updateAccountTime(timeStamp);
 }
 
 void CClient2Dlg::accountDownloadEnd(const CString &accountName)
 {
-	s_accountDlg.accountDownloadEnd( accountName);
+	char text[100];
+	MessageBox(text);
+	//s_accountDlg.accountDownloadEnd( accountName);
 
 	CString str;
 	str.Format("Account Download End: %s", accountName);
@@ -1820,6 +1841,11 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 	std::ifstream file;
 	if(filePath){
 		file.open(filePath);
+		if(!(file.is_open())) {
+			sprintf(text, "Couldn't open file\n");
+			MessageBox(text);
+			return;
+		}	
 	}
 	Stock *newStock;
 	char id[5];
@@ -1898,15 +1924,24 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 		file.getline(id, 5, '\n');
 		file.getline(stock, 100, '\n');
 		file.getline(barSize, 2, '\n');
-
+		sprintf(text, "1: The inputs are: ID: %d, StockId: %s, barsize: %d", atoi(id), stock, atoi(barSize));
+		MessageBox(text);
 		contractDefine(newContract, id, stock,"SMART", "ISLAND", "USD", 0, false, "STK" );
-		if(tickToStock[stock]){
+		if(tickToStock.find(stock) != tickToStock.end()){
 			newStock = tickToStock[stock];
+
 		}else{
-			newStock = new Stock(stock);
+			sprintf(text, "New Stock Created: Tick: %s", stock);
+			MessageBox(text);
+			std::string hack = stock;
+			newStock = new Stock(hack);
 		}
 		idToStock[atoi(id)] = newStock;
+		sprintf(text, "New Stack ID: %s", idToStock[atoi(id)]->getTick().c_str());
+		MessageBox(text);
 		idToAction[atoi(id)] = actionID;
+		sprintf(text, "New Stack ID: %d", idToAction[atoi(id)]);
+		MessageBox(text);
 		tickToStock[stock] = newStock;
 		m_pClient->reqRealTimeBars( atoi(id), *newContract,
 			atoi(barSize) /* TODO: parse and use m_dlgOrder->m_barSizeSetting) */,
@@ -1918,7 +1953,7 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 		file.getline(barSize, 2, '\n');
 		
 		contractDefine(newContract, id, stock,"SMART", "ISLAND", "USD", 0, false, "STK" );
-		if(tickToStock[stock]){
+		if(tickToStock.find(stock) != tickToStock.end()){
 			newStock = tickToStock[stock];
 		}else{
 			newStock = new Stock(stock);
@@ -1937,7 +1972,7 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 		file.getline(barSize, 2, '\n');
 		file.getline(numOfBars, 10, '\n');
 		contractDefine(newContract, id, stock,"SMART", "ISLAND", "USD", 0, false, "STK" );
-		if(tickToStock[stock]){
+		if(tickToStock.find(stock) != tickToStock.end()){
 			newStock = tickToStock[stock];
 		}else{
 			newStock = new Stock(stock);
@@ -1996,16 +2031,18 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 		file.getline(stock2, 100, '\n');
 
 		newContract2 = new Contract();
-		if(tickToStock[stock]){
+		if(tickToStock.find(stock) != tickToStock.end()){
 			newStock = tickToStock[stock];
 		}else{
+			sprintf(text, "New Stock Created: Tick: %s", stock);
+			MessageBox(text);
 			newStock = new Stock(stock);
 		}
 		
-		if(tickToStock[stock2]){
+		if(tickToStock.find(stock2) != tickToStock.end()){
 			newStock2 = tickToStock[stock2];
 		}else{
-			newStock2 = new Stock(stock);
+			newStock2 = new Stock(stock2);
 		}
 		
 		contractDefine(newContract, id, stock,"SMART", "ISLAND", "USD", 0, false, "STK" );
