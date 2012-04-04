@@ -5,6 +5,7 @@
 #include "shared_ptr.h"
 #include "IBString.h"
 
+
 /*
     SAME_POS    = open/close leg value is same as combo
     OPEN_POS    = open

@@ -16,7 +16,7 @@
 #define UNCORRELATED 1
 #define CORRELATED 2
 #define DIVERGED 3
-#define FAILED 4
+#define FAILURE 4
 
 // time steps we need to be correlated
 #define correlatedThreshold 10

@@ -1,6 +1,6 @@
 #include "EMA.h"
 
-
+using namespace std;
 /* EMA */
 EMA::EMA(int numPeriods) :  curEMA(0), validCount(numPeriods)
 {

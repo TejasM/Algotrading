@@ -100,7 +100,7 @@ void PairsTrading::State2() {
 
     // Wait until state change
     if (EMAdifference > T2) {
-        state = FAILED;
+        state = FAILURE;
     }
     else if (EMAdifference > T1) {
         state = DIVERGED;
@@ -118,7 +118,7 @@ void PairsTrading::State3() {
     // algorithm failure
     if (EMAdifference > T2) {
         divergedCount = 0;
-        state = FAILED;
+        state = FAILURE;
         return;
     }
 

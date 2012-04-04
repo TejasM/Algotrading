@@ -8,8 +8,7 @@
 #include "DlgAccount.h"
 #include "DlgConnect.h"
 #include "DlgMktDepth.h"
-#include "Stock.h"
-#include "PairsTrading.h"
+//#include "Contract.h"
 #include "Execution.h"
 #include "ScannerSubscription.h"
 #include "DlgNewsBulletins.h"
@@ -21,7 +20,10 @@
 #include "CommissionReport.h"
 #include "Input_Dialog.h"
 #include <fstream>
+#include "winbase.h"
+#include "Stock.h"
 #include <map>
+#include "PairsTrading.h"
 
 #include "OrderState.h"
 
@@ -29,9 +31,7 @@ std::map<int, int> idToAction;
 std::map<int, Stock *> idToStock;
 std::map<Stock *, PairsTrading *> stockToPairs;
 std::map<CString, Stock *> tickToStock;
-//map <Stock *, EMACrossover1 *> stockToCrossover1;
-//map <Stock *, EMACrossover2 *> stockToCrossover2;
-
+std::map<int, Order *> idToOrder;
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -59,71 +59,71 @@ static CDlgLogConfig    s_dlgLogConfig;
 CString getField( TickType tickType) {
 	switch( tickType)
 	{
-		case BID_SIZE:	                    return "bidSize";
-		case BID:		                    return "bidPrice";
-		case ASK:		                    return "askPrice";
-		case ASK_SIZE:	                    return "askSize";
-		case LAST:		                    return "lastPrice";
-		case LAST_SIZE:	                    return "lastSize";
-		case HIGH:		                    return "high";
-		case LOW:		                    return "low";
-		case VOLUME:	                    return "volume";
-		case CLOSE:		                    return "close";
-		case BID_OPTION_COMPUTATION:		return "bidOptComp";
-		case ASK_OPTION_COMPUTATION:		return "askOptComp";
-		case LAST_OPTION_COMPUTATION:		return "lastOptComp";
-		case MODEL_OPTION:					return "optionModel";
-		case OPEN:                          return "open";
-		case LOW_13_WEEK:                   return "13WeekLow";
-		case HIGH_13_WEEK:                  return "13WeekHigh";
-		case LOW_26_WEEK:                   return "26WeekLow";
-		case HIGH_26_WEEK:                  return "26WeekHigh";
-		case LOW_52_WEEK:                   return "52WeekLow";
-		case HIGH_52_WEEK:                  return "52WeekHigh";
-		case AVG_VOLUME:                    return "AvgVolume";
-		case OPEN_INTEREST:                 return "OpenInterest";
-		case OPTION_HISTORICAL_VOL:         return "OptionHistoricalVolatility";
-		case OPTION_IMPLIED_VOL:            return "OptionImpliedVolatility";
-		case OPTION_BID_EXCH:               return "OptionBidExchStr";
-		case OPTION_ASK_EXCH:               return "OptionAskExchStr";
-		case OPTION_CALL_OPEN_INTEREST:     return "OptionCallOpenInterest";
-		case OPTION_PUT_OPEN_INTEREST:      return "OptionPutOpenInterest";
-		case OPTION_CALL_VOLUME:            return "OptionCallVolume";
-		case OPTION_PUT_VOLUME:             return "OptionPutVolume";
-		case INDEX_FUTURE_PREMIUM:          return "IndexFuturePremium";
-		case BID_EXCH:                      return "bidExch";
-		case ASK_EXCH:                      return "askExch";
-		case AUCTION_VOLUME:                return "auctionVolume";
-		case AUCTION_PRICE:                 return "auctionPrice";
-		case AUCTION_IMBALANCE:             return "auctionImbalance";
-		case MARK_PRICE:                    return "markPrice";
-		case BID_EFP_COMPUTATION:           return "bidEFP";
-		case ASK_EFP_COMPUTATION:           return "askEFP";
-		case LAST_EFP_COMPUTATION:          return "lastEFP";
-		case OPEN_EFP_COMPUTATION:          return "openEFP";
-		case HIGH_EFP_COMPUTATION:          return "highEFP";
-		case LOW_EFP_COMPUTATION:           return "lowEFP";
-		case CLOSE_EFP_COMPUTATION:         return "closeEFP";
-		case LAST_TIMESTAMP:                return "lastTimestamp";
-		case SHORTABLE:                     return "shortable";
-		case FUNDAMENTAL_RATIOS:            return "fundamentals";
-		case RT_VOLUME:                     return "RTVolume";
-		case HALTED:                        return "halted";
-		case BID_YIELD:                     return "bidYield";
-		case ASK_YIELD:                     return "askYield";
-		case LAST_YIELD:                    return "lastYield";             
-		case CUST_OPTION_COMPUTATION:       return "custOptComp";
-		case TRADE_COUNT:                   return "trades";
-		case TRADE_RATE:                    return "trades/min";
-		case VOLUME_RATE:                   return "volume/min";
-		case LAST_RTH_TRADE:                return "lastRTHTrade";
-		default:                            return "unknown";
+	case BID_SIZE:	                    return "bidSize";
+	case BID:		                    return "bidPrice";
+	case ASK:		                    return "askPrice";
+	case ASK_SIZE:	                    return "askSize";
+	case LAST:		                    return "lastPrice";
+	case LAST_SIZE:	                    return "lastSize";
+	case HIGH:		                    return "high";
+	case LOW:		                    return "low";
+	case VOLUME:	                    return "volume";
+	case CLOSE:		                    return "close";
+	case BID_OPTION_COMPUTATION:		return "bidOptComp";
+	case ASK_OPTION_COMPUTATION:		return "askOptComp";
+	case LAST_OPTION_COMPUTATION:		return "lastOptComp";
+	case MODEL_OPTION:					return "optionModel";
+	case OPEN:                          return "open";
+	case LOW_13_WEEK:                   return "13WeekLow";
+	case HIGH_13_WEEK:                  return "13WeekHigh";
+	case LOW_26_WEEK:                   return "26WeekLow";
+	case HIGH_26_WEEK:                  return "26WeekHigh";
+	case LOW_52_WEEK:                   return "52WeekLow";
+	case HIGH_52_WEEK:                  return "52WeekHigh";
+	case AVG_VOLUME:                    return "AvgVolume";
+	case OPEN_INTEREST:                 return "OpenInterest";
+	case OPTION_HISTORICAL_VOL:         return "OptionHistoricalVolatility";
+	case OPTION_IMPLIED_VOL:            return "OptionImpliedVolatility";
+	case OPTION_BID_EXCH:               return "OptionBidExchStr";
+	case OPTION_ASK_EXCH:               return "OptionAskExchStr";
+	case OPTION_CALL_OPEN_INTEREST:     return "OptionCallOpenInterest";
+	case OPTION_PUT_OPEN_INTEREST:      return "OptionPutOpenInterest";
+	case OPTION_CALL_VOLUME:            return "OptionCallVolume";
+	case OPTION_PUT_VOLUME:             return "OptionPutVolume";
+	case INDEX_FUTURE_PREMIUM:          return "IndexFuturePremium";
+	case BID_EXCH:                      return "bidExch";
+	case ASK_EXCH:                      return "askExch";
+	case AUCTION_VOLUME:                return "auctionVolume";
+	case AUCTION_PRICE:                 return "auctionPrice";
+	case AUCTION_IMBALANCE:             return "auctionImbalance";
+	case MARK_PRICE:                    return "markPrice";
+	case BID_EFP_COMPUTATION:           return "bidEFP";
+	case ASK_EFP_COMPUTATION:           return "askEFP";
+	case LAST_EFP_COMPUTATION:          return "lastEFP";
+	case OPEN_EFP_COMPUTATION:          return "openEFP";
+	case HIGH_EFP_COMPUTATION:          return "highEFP";
+	case LOW_EFP_COMPUTATION:           return "lowEFP";
+	case CLOSE_EFP_COMPUTATION:         return "closeEFP";
+	case LAST_TIMESTAMP:                return "lastTimestamp";
+	case SHORTABLE:                     return "shortable";
+	case FUNDAMENTAL_RATIOS:            return "fundamentals";
+	case RT_VOLUME:                     return "RTVolume";
+	case HALTED:                        return "halted";
+	case BID_YIELD:                     return "bidYield";
+	case ASK_YIELD:                     return "askYield";
+	case LAST_YIELD:                    return "lastYield";             
+	case CUST_OPTION_COMPUTATION:       return "custOptComp";
+	case TRADE_COUNT:                   return "trades";
+	case TRADE_RATE:                    return "trades/min";
+	case VOLUME_RATE:                   return "volume/min";
+	case LAST_RTH_TRADE:                return "lastRTHTrade";
+	default:                            return "unknown";
 	}
 }
 
 #define NUM_FA_ERROR_CODES 6
 static int faErrorCodes[NUM_FA_ERROR_CODES] =
-	{ 503, 504, 505, 522, 1100, NOT_AN_FA_ACCOUNT_ERROR } ;
+{ 503, 504, 505, 522, 1100, NOT_AN_FA_ACCOUNT_ERROR } ;
 
 
 struct CClient2Dlg::PropPrintHelpers {
@@ -178,7 +178,7 @@ class CAboutDlg : public CDialog
 public:
 	CAboutDlg();
 
-// Dialog Data
+	// Dialog Data
 	//{{AFX_DATA(CAboutDlg)
 	enum { IDD = IDD_ABOUTBOX };
 	//}}AFX_DATA
@@ -189,7 +189,7 @@ protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
 
-// Implementation
+	// Implementation
 protected:
 	//{{AFX_MSG(CAboutDlg)
 	//}}AFX_MSG
@@ -211,7 +211,7 @@ void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialog)
 	//{{AFX_MSG_MAP(CAboutDlg)
-		// No message handlers
+	// No message handlers
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -237,7 +237,7 @@ CClient2Dlg::CClient2Dlg(CWnd* pParent /*=NULL*/)
 
 	{
 #define PUT_PROP(Prop, Value) \
-		m_scannerSubscr->Prop = Value;
+	m_scannerSubscr->Prop = Value;
 
 		PUT_PROP(numberOfRows, 10);
 		PUT_PROP(instrument, "STK");
@@ -660,7 +660,7 @@ void CClient2Dlg::OnReqRealTimeBars()
 
 	m_pClient->reqRealTimeBars( m_dlgOrder->m_id, m_dlgOrder->getContract(),
 		5 /* TODO: parse and use m_dlgOrder->m_barSizeSetting) */,
-        m_dlgOrder->m_whatToShow, m_dlgOrder->m_useRTH > 0);
+		m_dlgOrder->m_whatToShow, m_dlgOrder->m_useRTH > 0);
 }
 
 void CClient2Dlg::OnCancelRealTimeBars()
@@ -737,35 +737,35 @@ void CClient2Dlg::DisplayMultiline(CHScrollListBox& box, const CString& title, c
 }
 
 void CClient2Dlg::scannerData(int reqId, int rank,
-                            const ContractDetails &contractDetails, const CString &distance,
-                            const CString &benchmark, const CString &projection, const CString &legsStr) {
-	Contract contract = contractDetails.summary;
-	// create string
-	CString str;
-	str.Format("id =%i rank=%i conId=%i symbol=%s secType=%s expiry=%s strike=%f right=%s exchange=%s currency=%s localSymbol=%s marketName=%s tradingClass=%s distance=%s benchmark=%s projection=%s legsStr=%s",
-		reqId,
-		rank,
-		contract.conId,
-		contract.symbol,
-		contract.secType,
-		contract.expiry,
-		contract.strike,
-		contract.right,
-		contract.exchange,
-		contract.currency,
-		contract.localSymbol,
-		contractDetails.marketName,
-		contractDetails.tradingClass,
-		distance,
-		benchmark,
-		projection,
-		legsStr);
+	const ContractDetails &contractDetails, const CString &distance,
+	const CString &benchmark, const CString &projection, const CString &legsStr) {
+		Contract contract = contractDetails.summary;
+		// create string
+		CString str;
+		str.Format("id =%i rank=%i conId=%i symbol=%s secType=%s expiry=%s strike=%f right=%s exchange=%s currency=%s localSymbol=%s marketName=%s tradingClass=%s distance=%s benchmark=%s projection=%s legsStr=%s",
+			reqId,
+			rank,
+			contract.conId,
+			contract.symbol,
+			contract.secType,
+			contract.expiry,
+			contract.strike,
+			contract.right,
+			contract.exchange,
+			contract.currency,
+			contract.localSymbol,
+			contractDetails.marketName,
+			contractDetails.tradingClass,
+			distance,
+			benchmark,
+			projection,
+			legsStr);
 
-	int i =  m_ticks.AddString(str);
+		int i =  m_ticks.AddString(str);
 
-	// bring into view
-	int top = i - N < 0 ? 0 : i - N;
-	m_ticks.SetTopIndex( top);
+		// bring into view
+		int top = i - N < 0 ? 0 : i - N;
+		m_ticks.SetTopIndex( top);
 }
 
 void CClient2Dlg::scannerDataEnd(int reqId)
@@ -782,7 +782,7 @@ void CClient2Dlg::scannerDataEnd(int reqId)
 }
 
 void CClient2Dlg::historicalData(TickerId reqId, const CString& date, double open, double high, double low,
-                               double close, int volume, int barCount, double WAP, int hasGaps)
+	double close, int volume, int barCount, double WAP, int hasGaps)
 {
 	CString displayString;
 	displayString.Format(
@@ -796,13 +796,13 @@ void CClient2Dlg::historicalData(TickerId reqId, const CString& date, double ope
 }
 
 void CClient2Dlg::realtimeBar(TickerId reqId, long time, double open, double high, double low,
-                               double close, long volume, double WAP, int count)
+	double close, long volume, double WAP, int count)
 {
 	CString displayString;
 	displayString.Format(
 		"id=%d time=%d open=%f high=%f low=%f close=%f volume=%d WAP=%f count = %d",
 		reqId, time, open, high, low, close, volume, WAP, count);
-    int i =  m_ticks.AddString(displayString);
+	int i =  m_ticks.AddString(displayString);
 
 	// bring into view
 	int top = i - N < 0 ? 0 : i - N;
@@ -896,7 +896,7 @@ void CClient2Dlg::receiveFA(faDataType pFaDataType, const CString& cxml)
 
 	}
 }
-
+int count = 0;
 void CClient2Dlg::tickPrice( TickerId tickerId, TickType tickType, double price, int canAutoExecute)
 {
 	CString str;
@@ -906,6 +906,41 @@ void CClient2Dlg::tickPrice( TickerId tickerId, TickType tickType, double price,
 
 	int top = i - N < 0 ? 0 : i - N;
 	m_ticks.SetTopIndex( top);
+
+	int actionCode = idToAction[tickerId];
+	Stock *newStock;
+	switch (actionCode)
+	{
+	case ID_AUTOEMA:
+		break;
+	case ID_AUTOEMA2:
+		break;
+	case ID_REQBAR:
+		newStock = idToStock[tickerId];
+		newStock->update(tickerId, price);
+		break;
+	case ID_REQEMA:
+		newStock = idToStock[tickerId];
+		newStock->update(tickerId, price);
+		break;
+	case ID_REQMACD:
+		newStock = idToStock[tickerId];
+		newStock->update(tickerId, price);
+		break;
+	case ID_PAIR:
+		newStock = idToStock[tickerId];
+		newStock->update(tickerId, price);
+		count++;
+		if(count == 2){
+			PairsTrading *pairs = stockToPairs[newStock];
+			pairs->doPairsTrading();
+			count = 0;
+		}
+		break;
+	default:
+		break;
+	}
+
 }
 
 void CClient2Dlg::tickSize( TickerId tickerId, TickType tickType, int size)
@@ -940,12 +975,12 @@ void CClient2Dlg::tickString(TickerId tickerId, TickType tickType, const CString
 
 	int top = i - N < 0 ? 0 : i - N;
 	m_ticks.SetTopIndex( top);
-	
+
 }
 
 void CClient2Dlg::tickEFP(TickerId tickerId, TickType tickType, double basisPoints, const CString& formattedBasisPoints,
-						  double totalDividends, int holdDays, const CString& futureExpiry, double dividendImpact,
-						  double dividendsToExpiry)
+	double totalDividends, int holdDays, const CString& futureExpiry, double dividendImpact,
+	double dividendsToExpiry)
 {
 	CString str;
 	str.Format( "id=%i  %s: basisPoints=%f / %s impliedFuture=%f holdDays=%i futureExpiry=%s dividendImpact=%f dividendsToExpiry=%f",
@@ -983,7 +1018,7 @@ void CClient2Dlg::tickOptionComputation( TickerId tickerId, TickType tickType, d
 		pvDividendStr.Format("%f", pvDividend);
 	}
 	if (undPrice != DBL_MAX) {
-    		undPriceStr.Format("%f", undPrice);
+		undPriceStr.Format("%f", undPrice);
 	}
 	str.Format( "id=%i %s vol=%s delta=%s gamma=%s vega=%s theta=%s optPrice=%s pvDividend=%s undPrice=%s",
 		tickerId, (const char*)getField( tickType), impliedVolStr, deltaStr, gammaStr, vegaStr, thetaStr, 
@@ -996,8 +1031,8 @@ void CClient2Dlg::tickOptionComputation( TickerId tickerId, TickType tickType, d
 }
 
 void CClient2Dlg::orderStatus( OrderId orderId, const CString &status, int filled, int remaining,
-        double avgFillPrice, int permId, int parentId, double lastFillPrice,
-		int clientId, const CString& whyHeld)
+	double avgFillPrice, int permId, int parentId, double lastFillPrice,
+	int clientId, const CString& whyHeld)
 {
 	// create string
 	CString str;
@@ -1013,7 +1048,7 @@ void CClient2Dlg::orderStatus( OrderId orderId, const CString &status, int fille
 }
 
 void CClient2Dlg::openOrder( OrderId orderId, const Contract& contract,
-							const Order& order, const OrderState& orderState)
+	const Order& order, const OrderState& orderState)
 {
 	// create string
 	CString str;
@@ -1297,14 +1332,14 @@ void CClient2Dlg::marketDataType( TickerId reqId, int marketDataType)
 {	
 	CString str;
 	switch (marketDataType){
-		case REALTIME:
-			str.Format("id=%i marketDataType=Real-Time", reqId);
-			break;
-		case FROZEN:
-			str.Format("id=%i marketDataType=Frozen", reqId);
-			break;
-		default:
-			str.Format("id=%i marketDataType=Unknown", reqId);
+	case REALTIME:
+		str.Format("id=%i marketDataType=Real-Time", reqId);
+		break;
+	case FROZEN:
+		str.Format("id=%i marketDataType=Frozen", reqId);
+		break;
+	default:
+		str.Format("id=%i marketDataType=Unknown", reqId);
 	}
 
 	int i = m_ticks.AddString(str);
@@ -1315,19 +1350,19 @@ void CClient2Dlg::marketDataType( TickerId reqId, int marketDataType)
 }
 
 void CClient2Dlg::updateAccountValue( const CString &key, const CString &val,
-									  const CString &currency, const CString &accountName)
+	const CString &currency, const CString &accountName)
 {
 	s_accountDlg.updateAccountValue(key, val, currency, accountName);
 }
 
 void CClient2Dlg::updatePortfolio( const Contract& contract, int position,
-								  double marketPrice, double marketValue,
-								  double averageCost, double unrealizedPNL,
-								  double realizedPNL, const CString &accountName)
+	double marketPrice, double marketValue,
+	double averageCost, double unrealizedPNL,
+	double realizedPNL, const CString &accountName)
 
 {
 	s_accountDlg.updatePortfolio(contract, position, marketPrice, marketValue,
-            averageCost, unrealizedPNL, realizedPNL, accountName);
+		averageCost, unrealizedPNL, realizedPNL, accountName);
 }
 
 void CClient2Dlg::updateAccountTime(const CString &timeStamp)
@@ -1558,7 +1593,7 @@ void CClient2Dlg::commissionReport( const CommissionReport& commissionReport)
 }
 
 void CClient2Dlg::updateMktDepth(TickerId id, int position, int operation, int side,
-		double price, int size)
+	double price, int size)
 {
 	m_dlgMktDepth->updateMktDepth(id, position, "", operation, side, price, size);
 }
@@ -1591,7 +1626,7 @@ void CClient2Dlg::error(const int id, const int errorCode, const CString errorMs
 	errorStr += errorMsg;
 	error(errorStr) ;
 	for (int ctr=0; ctr < NUM_FA_ERROR_CODES; ctr++) {
-       faError |= (errorCode == faErrorCodes[ctr]) ;
+		faError |= (errorCode == faErrorCodes[ctr]) ;
 	}
 	if (errorCode == CDlgMktDepth::MKT_DEPTH_DATA_RESET) {
 		m_dlgMktDepth->clear();
@@ -1648,7 +1683,7 @@ void CClient2Dlg::OnReqMktDepth()
 }
 
 void CClient2Dlg::updateNewsBulletin(int msgId, int msgType, const CString& newsMessage,
-                                     const CString& originExch)
+	const CString& originExch)
 {
 	CString displayString;
 	displayString.Format(" MsgId=%d :: MsgType = %d :: Origin= %s :: Message= %s",
@@ -1790,21 +1825,51 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 	char id[5];
 	char stock[100];
 	char barSize[2];
+	char numOfBars[10];
+	char orderType[10];
+	char orderSize[10];
+	char action[10];
+	char limitPrice[10];
+
+
 	Contract *newContract = new Contract();
+
+	PairsTrading *pairs;
+	Stock *newStock2;
+	Contract *newContract2;
+	
+	Order *newOrder;
 	switch (actionID)	{
 	case ID_AUTOEMA:
+		//TO DO
 		break;
 	case ID_AUTOEMA2:
+		//TO DO
 		break;
 	case ID_CANEMA:
+		file.getline(id, 5, '\n');
+		m_pClient->cancelRealTimeBars(atoi(id));
+		idToStock[atoi(id)] = NULL;
+		idToAction[atoi(id)] = '\0';
 		break;
 	case ID_CANMACD:
+		file.getline(id, 5, '\n');
+		m_pClient->cancelRealTimeBars(atoi(id));
+		idToStock[atoi(id)] = NULL;
+		idToAction[atoi(id)] = '\0';
 		break;
 	case ID_CANORDER:
+		file.getline(id, 5, '\n');
+		m_pClient->cancelOrder(atoi(id));
 		break;
 	case ID_CANPAIR:
+		file.getline(id, 5, '\n');
 		break;
 	case ID_CANTICK:
+		file.getline(id, 5, '\n');
+		m_pClient->cancelRealTimeBars(atoi(id));
+		idToStock[atoi(id)] = NULL;
+		idToAction[atoi(id)] = '\0';
 		break;
 	case ID_CONNECT:
 		char ipAddr[50];
@@ -1813,10 +1878,10 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 		file.getline(ipAddr, 50, '\n');
 		file.getline(port, 20, '\n');
 		file.getline(clientID, 5, '\n');
-		
-		sprintf(text, "The inputs are: Code String: %s, Path: %s, Client ID: %s", ipAddr, port, clientID);
-		MessageBox(text);
-		
+
+		/*sprintf(text, "The inputs are: Code String: %s, Path: %s, Client ID: %s", ipAddr, port, clientID);
+		MessageBox(text);*/
+
 		ConnectI(ipAddr, port, clientID);
 		break;
 	case ID_CTIME:
@@ -1826,6 +1891,7 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 		OnDisconnect();
 		break;
 	case ID_EXIT:
+		exit(0);
 		break;
 	case ID_REQBAR:
 
@@ -1834,7 +1900,11 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 		file.getline(barSize, 2, '\n');
 
 		contractDefine(newContract, id, stock,"SMART", "ISLAND", "USD", 0, false, "STK" );
-		newStock = new Stock();
+		if(tickToStock[stock]){
+			newStock = tickToStock[stock];
+		}else{
+			newStock = new Stock(stock);
+		}
 		idToStock[atoi(id)] = newStock;
 		idToAction[atoi(id)] = actionID;
 		tickToStock[stock] = newStock;
@@ -1843,6 +1913,42 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 			"TRADES", true);
 		break;
 	case ID_REQMACD:
+		file.getline(id, 5, '\n');
+		file.getline(stock, 100, '\n');
+		file.getline(barSize, 2, '\n');
+		
+		contractDefine(newContract, id, stock,"SMART", "ISLAND", "USD", 0, false, "STK" );
+		if(tickToStock[stock]){
+			newStock = tickToStock[stock];
+		}else{
+			newStock = new Stock(stock);
+		}
+		newStock->newMACD(atoi(id));
+		idToStock[atoi(id)] = newStock;
+		idToAction[atoi(id)] = actionID;
+		tickToStock[stock] = newStock;
+		m_pClient->reqRealTimeBars( atoi(id), *newContract,
+			atoi(barSize) /* TODO: parse and use m_dlgOrder->m_barSizeSetting) */,
+			"TRADES", true);
+		break;
+	case ID_REQEMA:
+		file.getline(id, 5, '\n');
+		file.getline(stock, 100, '\n');
+		file.getline(barSize, 2, '\n');
+		file.getline(numOfBars, 10, '\n');
+		contractDefine(newContract, id, stock,"SMART", "ISLAND", "USD", 0, false, "STK" );
+		if(tickToStock[stock]){
+			newStock = tickToStock[stock];
+		}else{
+			newStock = new Stock(stock);
+		}
+		newStock->newEMA(atoi(numOfBars), atoi(id));
+		idToStock[atoi(id)] = newStock;
+		idToAction[atoi(id)] = actionID;
+		tickToStock[stock] = newStock;
+		m_pClient->reqRealTimeBars( atoi(id), *newContract,
+			atoi(barSize) /* TODO: parse and use m_dlgOrder->m_barSizeSetting) */,
+			"TRADES", true);
 		break;
 	case ID_REQTICK:
 		//m_dlgOrder->init( this, "Request Market Data", CDlgOrder::REQ_MKT_DATA, m_managedAccounts);
@@ -1858,10 +1964,72 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 			m_dlgOrder->m_genericTicks, false);
 		break;
 	case ID_ORDER:
+		file.getline(id, 5, '\n');
+		file.getline(stock, 100, '\n');
+		file.getline(action, 100, '\n');
+		file.getline(orderSize, 100, '\n');
+		file.getline(orderType, 100, '\n');
+		file.getline(limitPrice, 100, '\n');
+		newOrder = new Order();
+
+		contractDefine(newContract, id, stock,"SMART", "ISLAND", "USD", 0, false, "STK" );
+		newOrder->action = action;
+		newOrder->orderId = atoi(id);
+		newOrder->totalQuantity = atoi(orderSize);
+		newOrder->lmtPrice = strtod(limitPrice, NULL);
+		newOrder->orderType = orderType;
+		idToOrder[atoi(id)] = newOrder;
+		m_pClient->placeOrder(atoi(id), *newContract, *newOrder);
 		break;
 	case ID_CLRPOS:
 		break;
 	case ID_PAIR:
+
+		//Currently setup to get from user the pairs, easy to change to 3 or so of our own pairs.
+		file.getline(id, 5, '\n');
+		file.getline(stock, 100, '\n');
+
+
+		char id2[5];
+		char stock2[100];
+		file.getline(id2, 5, '\n');
+		file.getline(stock2, 100, '\n');
+
+		newContract2 = new Contract();
+		if(tickToStock[stock]){
+			newStock = tickToStock[stock];
+		}else{
+			newStock = new Stock(stock);
+		}
+		
+		if(tickToStock[stock2]){
+			newStock2 = tickToStock[stock2];
+		}else{
+			newStock2 = new Stock(stock);
+		}
+		
+		contractDefine(newContract, id, stock,"SMART", "ISLAND", "USD", 0, false, "STK" );
+		contractDefine(newContract2, id2, stock2,"SMART", "ISLAND", "USD", 0, false, "STK" );
+		pairs = new PairsTrading(newStock, atoi(id), newStock2, atoi(id2));
+
+		newStock->newEMA(5, atoi(id));
+		idToStock[atoi(id)] = newStock;
+		idToAction[atoi(id)] = actionID;
+		tickToStock[stock] = newStock;
+		stockToPairs[newStock] = pairs;
+
+		newStock2->newEMA(5, atoi(id2));
+		idToStock[atoi(id2)] = newStock2;
+		idToAction[atoi(id2)] = actionID;
+		tickToStock[stock] = newStock2;
+		stockToPairs[newStock2] = pairs;
+
+		m_pClient->reqRealTimeBars( atoi(id), *newContract,
+			5 /* TODO: parse and use m_dlgOrder->m_barSizeSetting) */,
+			"TRADES", true);
+		m_pClient->reqRealTimeBars( atoi(id2), *newContract2,
+			5 /* TODO: parse and use m_dlgOrder->m_barSizeSetting) */,
+			"TRADES", true);
 		break;
 	default:
 		break;
@@ -1878,7 +2046,7 @@ void CClient2Dlg::OnBnClickedButton1()
 	message.FormatMessage(_T("The inputs are: Code String: %s, Path: %s"), dlg.m_actioncode.GetString(), dlg.m_filepath.GetString());
 	MessageBox(message);*/
 	parseFunction(dlg.m_actioncode, dlg.m_filepath);
-	
-	
+
+
 	// TODO: Add your control notification handler code here
 }
