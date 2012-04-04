@@ -6,9 +6,9 @@
 #define PAIRSTRADING_H
 
 #include "Stock.h"
-#include "EClientSocket.h" 
+//#include "EClientSocket.h" 
 #include "utils.h"
-#include "Contract.h"
+
 
 
 // See Design Document for threshold terminology
@@ -31,7 +31,7 @@ class PairsTrading {
 		PairsTrading(Stock * _s1, int EMA_id1, Stock * _s2, int EMA_id2);
 		~PairsTrading();
 		int getState(); // not used
-		void doPairsTrading(double current_money, EClient *m_pclient);
+		void doPairsTrading(double current_money, void *m_pclient);
 
 	private:
 		// s1 and s2 form an algorithmic trading pair
@@ -49,17 +49,7 @@ class PairsTrading {
 			double amountInvested;
 		};
 
-		void contractDefine( Contract * newContract, int id, char * stock, char *exchange, char *primaryExchange, char *currency, double strike, bool includeExpired, char *secType ) 
-		{
-			newContract->conId = id;
-			newContract->symbol = stock;
-			newContract->exchange = exchange;
-			newContract->primaryExchange = primaryExchange;
-			newContract->currency = currency;
-			newContract->strike = strike;
-			newContract->includeExpired = includeExpired;
-			newContract->secType = secType;
-		}
+		
 
 		StockInfo s1Data, s2Data;
 
@@ -72,9 +62,9 @@ class PairsTrading {
 		void calculateDiff();
 		void State1();
 		void State2();
-		void State3(double current_money, EClient *m_pclient);
-		void State4(EClient *m_pclient);
-		void placeOrder(Stock *stock,std::string order, std::string tick, double amount, EClient *m_pClient);
+		void State3(double current_money, void *m_pclient);
+		void State4(void *m_pclient);
+		void placeOrder(Stock *stock,std::string order, std::string tick, double amount, void *m_pClient);
 
 		double getInvestmentAmount (std::string order, 
 				double diff, int count, double current_money);

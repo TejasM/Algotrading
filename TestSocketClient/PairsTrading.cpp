@@ -5,10 +5,12 @@
 #include<iostream>
 #include<cmath>
 //#include<string>
+#include "Contract.h"
+#include "EClientSocket.h" 
 #include "PairsTrading.h"
 #include "Order.h"
 
-using namespace std;
+//using namespace std;
 
 
 // PairsTrading Class
@@ -34,8 +36,20 @@ PairsTrading::~PairsTrading() {
 	// delete heap memory
 }
 
+void contractDefine( Contract * newContract, int id, char * stock, char *exchange, char *primaryExchange, char *currency, double strike, bool includeExpired, char *secType ) 
+{
+	newContract->conId = id;
+	newContract->symbol = stock;
+	newContract->exchange = exchange;
+	newContract->primaryExchange = primaryExchange;
+	newContract->currency = currency;
+	newContract->strike = strike;
+	newContract->includeExpired = includeExpired;
+	newContract->secType = secType;
+}
+
 // Should be in another function!
-void PairsTrading::placeOrder(Stock *stock, string order, string tick, double amount, EClient *m_pClient) {
+void PairsTrading::placeOrder(Stock *stock, std::string order, std::string tick, double amount, void *m_pClient) {
 	Order *newOrder = new Order();
 	Contract *newContract = new Contract();
 	
@@ -51,12 +65,12 @@ void PairsTrading::placeOrder(Stock *stock, string order, string tick, double am
 	
 	
 
-	m_pClient->placeOrder(idListTop, *newContract, *newOrder);
+	((EClient*) m_pClient)->placeOrder(idListTop, *newContract, *newOrder);
 	idListTop++;
 }
 
 
-double PairsTrading::getInvestmentAmount (string order, 
+double PairsTrading::getInvestmentAmount (std::string order, 
 	double diff, int count, double current_money) {
 
 		/*
@@ -129,7 +143,7 @@ void PairsTrading::State2() {
 }
 
 // handle state 3, DIVERGED (we exploit this)
-void PairsTrading::State3(double current_money,EClient *m_pclient) {
+void PairsTrading::State3(double current_money,void *m_pclient) {
 
 	// algorithm failure
 	if (EMAdifference > T2) {
@@ -181,13 +195,13 @@ void PairsTrading::State3(double current_money,EClient *m_pclient) {
 }
 
 // handle state 4, FAILED
-void PairsTrading::State4(EClient *m_pclient) {
+void PairsTrading::State4(void *m_pclient) {
 	state = 1;
 	// sell everything, call methods in order management module
 }
 
 // Begin algorithmic trading
-void PairsTrading::doPairsTrading(double current_money, EClient *m_pclient) {
+void PairsTrading::doPairsTrading(double current_money, void *m_pclient) {
 
 	// update EMAdifference (see design documentation) and find state
 	calculateDiff();

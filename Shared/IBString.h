@@ -5,7 +5,7 @@
 #include <string>
 typedef std::string IBString;
 #else
-#include <afxstr.h>
+#include <atlstr.h>
 typedef CString IBString;
 #endif
 
