@@ -8,15 +8,28 @@
 #include "Stock.h"
 #include "EMACrossover.h"
 
-
 using namespace std;
 
+//print frequency of states
+
 //getInvestment amount and placeOrder assumed. I don't see any way for me to get valid checks. 
-EMACrossover::EMACrossover(Stock *_s, int _macdID, int _orderSize) : s(_s), macdID(_macdID), curState(INVALID), curMACD(0), orderSize(_orderSize), withStop(false) {
+EMACrossover::EMACrossover(Stock *_s, int _macdID, int _orderSize) : s(_s), macd(s->getMACD(_macdID)), curState(INVALID), curMACD(0), orderSize(_orderSize), withStop(false) {
+	initCommon();
 }
 
 EMACrossover::EMACrossover(Stock *_s, int _macdID, int _orderSize, double _d1, double _d2)
-	: s(_s), macdID(_macdID), curState(INVALID), curMACD(0), orderSize(_orderSize), d1(_d1), d2(_d2), withStop(true) {
+	: s(_s), macd(s->getMACD(_macdID)), curState(INVALID), curMACD(0), orderSize(_orderSize), d1(_d1), d2(_d2), withStop(true) {
+	initCommon();
+}
+
+void EMACrossover::initCommon() {
+	// Create and write to files
+	string filename;
+
+	// Price, ofstream name fPrice, filename RIM_Price.txt
+	filename = s->getTick() + "_Crossover.txt";
+	emacFile.open(filename.c_str());
+	emacFile << "Current State is " << curState << endl;
 }
 
 EMACrossover::~EMACrossover() {
@@ -28,9 +41,6 @@ state EMACrossover::getState() {
 }
 
 void EMACrossover::doEMACrossover() {
-	MACD *macd = s->getMACD(macdID);
-	double pi = atan((double) 1) * 4;
-
 	//check if values are valid
 	if (!macd->isValid()) {
 		return;
@@ -39,10 +49,14 @@ void EMACrossover::doEMACrossover() {
 	double curPrice = s->getPrice();
 	double fast = macd->getFast();
 	double slow = macd->getSlow();
-	double degrees = atan(fast/slow) * pi * 180;
+	double degrees = riskManagement();
 
 	if (withStop) {
 		if (curPrice > stopWin(fast, d1)) {
+			if (s->isShortable()) {
+				//placeOrder("short", orderSize);
+			}
+			emacFile << "Buying order " << orderSize << " at price " << s->getPrice() << endl;
 			//placeOrder("buy", orderSize);
 			return;
 		} else if (curPrice < stopLoss(slow, d2)) {
@@ -51,11 +65,13 @@ void EMACrossover::doEMACrossover() {
 		}
 	}
 
-	if (s->getMACD(macdID) > 0) {
+	//recall macd is fast - slow
+	if (macd->getMACD() > 0) {
 		if (curState == FAST_ABOVE_SLOW) {
 			return; //no news 
 		} else {
 			curState = FAST_ABOVE_SLOW;
+			emacFile << "Strength of crossover is " << degrees << endl;
 			//time to buy!
 			//placeOrder("buy", orderAmount);
 		}
@@ -64,17 +80,29 @@ void EMACrossover::doEMACrossover() {
 			return; //no news
 		} else {
 			curState = FAST_BELOW_SLOW;
-			//time to sell!
-			//placeorder("sell", orderamount);
+			emacFile << "Strength of crossover is " << degrees << endl;
+			//time to sell or short if we can!
+			if (s->isShortable()) {
+				//placeOrder("short", orderSize * 2);
+				emacFile << "Shorting order " << orderSize *2 << " at price " << s->getPrice() << endl;
+			} else {
+				//placeorder("sell", orderSize);
+				emacFile << "Selling order " << orderSize  << " at price " << s->getPrice() << endl;
+				//I'm assuming a sell order that you don't won't do anything so its harmless to call
+			}
 		}
 	}
 
 	return;
 }
 
-double riskManagement(double degrees) {
-	double money = 2;
-	return (degrees/180 * money * 0.01);
+//returns the crossover strength in degres. You can specify what a "strong enough" crossover is.
+double EMACrossover::riskManagement() { 
+	double fast = macd->getFast();
+	double slow = macd->getSlow();
+	double angle = macd->getMACD() > 0 ? atan(fast/slow) : atan(slow/fast);
+	double pi = atan((double) 1) * 4;
+	double degrees = angle * pi / 180;
 }
 
 double EMACrossover::stopWin(double fast, double  d1) {

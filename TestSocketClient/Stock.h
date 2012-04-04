@@ -24,6 +24,7 @@ class Stock{
         double getCurEMA(int id);
         double getCurMACD(int id);
         double getPrice();
+		bool isShortable();
         std::string getTick();
 
 		void newEMA(int num_periods, int id);

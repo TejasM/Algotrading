@@ -6,6 +6,7 @@
  */
 
 #include "Stock.h"
+#include<fstream>
 
 typedef enum {
 	FAST_ABOVE_SLOW,
@@ -23,13 +24,17 @@ class EMACrossover {
 
     private:
 		bool withStop;
+		void initCommon();
         Stock *s;
-		int macdID, orderSize;
+		long orderSize;
+		MACD *macd;
         state curState;
 		double curMACD;
 		double stopWin(double fast, double d1);
 		double stopLoss(double slow, double d2);
 		double d1, d2;
+		double riskManagement();
+		std::ofstream emacFile;
 };
 
 #endif
