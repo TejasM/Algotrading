@@ -1370,7 +1370,14 @@ void CClient2Dlg::marketDataType( TickerId reqId, int marketDataType)
 void CClient2Dlg::updateAccountValue( const CString &key, const CString &val,
 	const CString &currency, const CString &accountName)
 {
-	money = atoi(val);
+	char text[100];
+	if(key == "AvailableFunds"){
+		money = strtod(val, NULL);
+		sprintf(text, "Money Update: %f", money);
+		MessageBox(text);
+		m_pClient->reqAccountUpdates(false, "Nothing");
+	}
+	
 	//s_accountDlg.updateAccountValue(key, val, currency, accountName);
 }
 
@@ -1392,7 +1399,7 @@ void CClient2Dlg::updateAccountTime(const CString &timeStamp)
 void CClient2Dlg::accountDownloadEnd(const CString &accountName)
 {
 	char text[100];
-	MessageBox(text);
+	
 	//s_accountDlg.accountDownloadEnd( accountName);
 
 	CString str;
