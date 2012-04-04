@@ -9,6 +9,7 @@
 #include<fstream>
 
 typedef enum {
+	WAITING_FOR_STOP,
 	FAST_ABOVE_SLOW,
 	FAST_BELOW_SLOW,
 	INVALID
@@ -21,10 +22,8 @@ class EMACrossover {
         ~EMACrossover();
         state getState(); 
         void doEMACrossover();
-
+		void doEMACrossoverWithStop();
     private:
-		bool withStop;
-		bool inEntry;
 		void initCommon();
         Stock *s;
 		long orderSize;
