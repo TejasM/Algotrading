@@ -24,6 +24,7 @@ class EMACrossover {
 
     private:
 		bool withStop;
+		bool inEntry;
 		void initCommon();
         Stock *s;
 		long orderSize;

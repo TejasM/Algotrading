@@ -30,6 +30,8 @@ void EMACrossover::initCommon() {
 	filename = s->getTick() + "_Crossover.txt";
 	emacFile.open(filename.c_str());
 	emacFile << "Current State is " << curState << endl;
+
+	inEntry = false;
 }
 
 EMACrossover::~EMACrossover() {
@@ -51,15 +53,19 @@ void EMACrossover::doEMACrossover() {
 	double slow = macd->getSlow();
 	double degrees = riskManagement();
 
+	//init. could probably get rid of invalid and move this to constructor
+	if (curState == INVALID) {
+		curState = macd->getMACD() > 0 ? FAST_ABOVE_SLOW : FAST_BELOW_SLOW;
+		return;
+	}
+
 	if (withStop) {
-		if (curPrice > stopWin(fast, d1)) {
-			if (s->isShortable()) {
-				//placeOrder("short", orderSize);
-			}
-			emacFile << "Buying order " << orderSize << " at price " << s->getPrice() << endl;
+		if (curPrice > stopWin(fast, d1) && inEntry ) {
+			emacFile << "STOP WIN: Selling order " << orderSize << " at price " << s->getPrice() << endl;
 			//placeOrder("buy", orderSize);
 			return;
-		} else if (curPrice < stopLoss(slow, d2)) {
+		} else if (curPrice < stopLoss(slow, d2) && inEntry) {
+			emacFile << "STOP LOSS: Selling order " << orderSize << " at price " << s->getPrice() << endl;
 			/*placeOrder("sell", orderSize);*/
 			return;
 		}
@@ -71,6 +77,7 @@ void EMACrossover::doEMACrossover() {
 			return; //no news 
 		} else {
 			curState = FAST_ABOVE_SLOW;
+			inEntry = !inEntry;
 			emacFile << "Strength of crossover is " << degrees << endl;
 			//time to buy!
 			//placeOrder("buy", orderAmount);
@@ -80,6 +87,7 @@ void EMACrossover::doEMACrossover() {
 			return; //no news
 		} else {
 			curState = FAST_BELOW_SLOW;
+			inEntry = !inEntry;
 			emacFile << "Strength of crossover is " << degrees << endl;
 			//time to sell or short if we can!
 			if (s->isShortable()) {
@@ -106,9 +114,9 @@ double EMACrossover::riskManagement() {
 }
 
 double EMACrossover::stopWin(double fast, double  d1) {
-	return fast+d1;
+	return fast + d1;
 }
 
 double EMACrossover::stopLoss(double slow, double d2)  {
-	return slow-d2;
+	return slow - d2;
 }
