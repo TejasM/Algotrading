@@ -2,7 +2,7 @@
 
 using namespace std;
 /* EMA */
-EMA::EMA(int numPeriods) :  curEMA(0), validCount(numPeriods)
+EMA::EMA(int numPeriods) :  curEMA(-1), validCount(numPeriods)
 {
 	alpha = ((double)2)/((double)numPeriods+(double)1); 
 }
@@ -16,7 +16,11 @@ bool EMA::isValid() {
 }
 
 double EMA::calculateEMA(double curVal) {
-	curEMA = curVal * alpha + curEMA * (1 - alpha); //calculate EMA, store it
+	if (curEMA < 0 ) {
+		curEMA = curVal;
+	} else {
+		curEMA = curVal * alpha + curEMA * (1 - alpha); //calculate EMA, store it
+	}
 	if (validCount > 0) {
 		validCount--;
 	}
