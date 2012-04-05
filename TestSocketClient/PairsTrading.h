@@ -13,8 +13,8 @@
 
 
 // See Design Document for threshold terminology
-#define T1 0.071
-#define T2 0.072
+#define T1 0.0001
+#define T2 0.0003
 
 // The state the pair is currently in
 #define UNCORRELATED 1
