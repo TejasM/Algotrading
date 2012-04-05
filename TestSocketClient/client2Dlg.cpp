@@ -930,17 +930,19 @@ void CClient2Dlg::doWork(TickerId tickerId, double price){
 		newStock = idToStock[tickerId];
 		newStock->update(tickerId, price);
 		count++;
-		if(count == 1){
-			PairsTrading *pairs = stockToPairs[newStock];
-			m_pClient->reqAccountUpdates(true,"Nothing");
-			while(money == 0){
-
+		if(count >= 2){
+			if (money == 0) {
+				break;
 			}
-			sprintf(text, "Money: %f", money);
-			MessageBox(text);
+			newStock = idToStock[tickerId];
+			PairsTrading *pairs = stockToPairs[newStock];
+			/*sprintf(text, "Money: %f", money);
+			MessageBox(text);*/
 			pairs->doPairsTrading(money, m_pClient);
 			money = 0;
 			count = 0;
+			m_pClient->reqAccountUpdates(true,"Nothing");
+			
 		}
 		break;
 	default:
@@ -972,14 +974,19 @@ void CClient2Dlg::tickSize( TickerId tickerId, TickType tickType, int size)
 
 void CClient2Dlg::tickGeneric(TickerId tickerId, TickType tickType, double value)
 {
-	CString str;
+	/*CString str;
 	str.Format( "id=%i  %s=%f",
 		tickerId, (const char*)getField( tickType), value);
 	int i = m_ticks.AddString( str);
 
 	int top = i - N < 0 ? 0 : i - N;
-	m_ticks.SetTopIndex( top);
-	
+	m_ticks.SetTopIndex( top);*/
+	Stock *stock = idToStock[tickerId];
+	if( tickType == SHORTABLE){
+		if(stock){
+			stock->updateShortable(value);
+		}
+	}
 
 }
 
@@ -1373,8 +1380,8 @@ void CClient2Dlg::updateAccountValue( const CString &key, const CString &val,
 	char text[100];
 	if(key == "AvailableFunds"){
 		money = strtod(val, NULL);
-		sprintf(text, "Money Update: %f", money);
-		MessageBox(text);
+		/*sprintf(text, "Money Update: %f", money);
+		MessageBox(text);*/
 		m_pClient->reqAccountUpdates(false, "Nothing");
 	}
 	
@@ -2041,8 +2048,8 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 		if(tickToStock.find(stock) != tickToStock.end()){
 			newStock = tickToStock[stock];
 		}else{
-			sprintf(text, "New Stock Created: Tick: %s", stock);
-			MessageBox(text);
+			/*sprintf(text, "New Stock Created: Tick: %s", stock);
+			MessageBox(text);*/
 			newStock = new Stock(stock);
 		}
 		
@@ -2067,7 +2074,12 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 		idToAction[atoi(id2)] = actionID;
 		tickToStock[stock] = newStock2;
 		stockToPairs[newStock2] = pairs;
+		m_pClient->reqAccountUpdates(true,"Nothing");
 
+		m_pClient->reqMktData( atoi(id), *newContract,
+		_T("236"), false);
+		m_pClient->reqMktData( atoi(id2), *newContract,
+			_T("236"), false);
 		m_pClient->reqRealTimeBars( atoi(id), *newContract,
 			5 /* TODO: parse and use m_dlgOrder->m_barSizeSetting) */,
 			"TRADES", true);

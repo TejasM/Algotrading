@@ -13,7 +13,7 @@ Stock::Stock(string _tick) {
 	// initialize tick and times for EMA and MACD
 	tick = _tick;
 	curPrice = -1;
-
+	shortable = false;
 	// Create and write to files
 	string filename;
 
@@ -29,6 +29,18 @@ Stock::~Stock() {
 	// and also close files
 
 	fPrice.close();
+}
+
+void Stock::updateShortable(double value) {
+	 if (value > 2.5) { // 3.0
+       shortable = true;
+  }
+  else if (value > 1.5) { // 2.0
+       shortable = false;
+  }
+  else {
+	  shortable = false;
+  }
 }
 
 void Stock::newEMA(int num_periods, int id) {
@@ -129,6 +141,7 @@ void Stock::update(int id, double price) {
 			// write to file
 			*fEMA[id] << curEMA[id] << endl;
 		}
+		else curEMA[id]=-1;
 	}
 
 	// Look for the MACD corresponding to this id
@@ -141,5 +154,6 @@ void Stock::update(int id, double price) {
 			// write to file
 			*fMACD[id] << curMACD[id] << "\t" << histogram << "\t" << signal << endl;
 		}
+		else curMACD[id]=-1;
 	}
 }

@@ -111,6 +111,7 @@ double EMACrossover::riskManagement() {
 	double angle = macd->getMACD() > 0 ? atan(fast/slow) : atan(slow/fast);
 	double pi = atan((double) 1) * 4;
 	double degrees = angle * pi / 180;
+	return degrees;
 }
 
 double EMACrossover::stopWin(double fast, double  d1) {
