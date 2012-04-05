@@ -138,6 +138,7 @@ void PairsTrading::State1() {
 
 	if (correlatedCount >= correlatedThreshold) {
 		state = CORRELATED;
+		fTest << std::endl << "CORRELATED. stock 1 EMA@Div:" << s1Data.initialEMA << ", s2 EMA@Div: " << s2Data.initialEMA << std::endl;
 
 		// in case we diverge right away
 		s1Data.EMAatDivergence = s1->getCurEMA(s1Data.id);
