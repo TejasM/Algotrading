@@ -2,9 +2,9 @@
 
 using namespace std;
 /* EMA */
-EMA::EMA(int numPeriods) :  curEMA(0), validCount(numPeriods)
+EMA::EMA(int numPeriods) :  curEMA(-1), validCount(numPeriods)
 {
-	alpha = 2/(numPeriods+1); 
+	alpha = ((double)2)/((double)numPeriods+(double)1); 
 }
 
 EMA::~EMA()
@@ -16,7 +16,11 @@ bool EMA::isValid() {
 }
 
 double EMA::calculateEMA(double curVal) {
-	curEMA = curVal * alpha + curEMA * (1 - alpha); //calculate EMA, store it
+	if (curEMA < 0 ) {
+		curEMA = curVal;
+	} else {
+		curEMA = curVal * alpha + curEMA * (1 - alpha); //calculate EMA, store it
+	}
 	if (validCount > 0) {
 		validCount--;
 	}
@@ -28,7 +32,7 @@ double EMA::getEMA() {
 }
 
 //MACD constructor
-MACD::MACD(int slowPeriod, int fastPeriod, int signalPeriod) : slow(slowPeriod), fast(fastPeriod), signal(signalPeriod), curMACD(0), curHistogram(0), curSignal(0)
+MACD::MACD(int slowPeriod  , int fastPeriod , int signalPeriod) : slow(4), fast(2), signal(3), curMACD(0), curHistogram(0), curSignal(0)
 {
 }
 

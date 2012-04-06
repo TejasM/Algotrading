@@ -188,6 +188,7 @@ private:
 	void commissionReport( const CommissionReport& commissionReport);
 	void ConnectI(CString m_ipAddress, CString m_port, CString m_clientId);
 	void parseFunction(CString code, CString filePath);
+	void doWork(TickerId tickerId, double price);
 
 	void contractDefine( Contract * newContract, char * id, char * stock, char *exchange, char *primaryExchange, char *currency, double strike, bool includeExpired, char *secType ) 
 	{

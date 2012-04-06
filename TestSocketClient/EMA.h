@@ -37,7 +37,7 @@ class MACD {
 	double curSignal;
 	double curHistogram;
 public:
-	MACD(int slowPeriod = 12, int fastPeriod = 26, int signalPeriod = 9); //default args just call MACD()
+	MACD(int slowPeriod = 26, int fastPeriod = 26, int signalPeriod = 9); //default args just call MACD()
 	//Call this function with slowValue, fastValue. Pass in references to assign macd/signal/histogram. 
 	double calculateMACD(double curVal);
 	double getMACD();

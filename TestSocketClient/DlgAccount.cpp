@@ -44,6 +44,7 @@ void CDlgAccount::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CDlgAccount, CDialog)
 	//{{AFX_MSG_MAP(CDlgAccount)
 	//}}AFX_MSG_MAP
+	ON_LBN_SELCHANGE(IDC_LIST4, &CDlgAccount::OnLbnSelchangeList4)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -116,4 +117,9 @@ void CDlgAccount::updateTitle()
 	}
 
 	SetWindowText(title);
+}
+
+void CDlgAccount::OnLbnSelchangeList4()
+{
+	// TODO: Add your control notification handler code here
 }
