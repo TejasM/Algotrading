@@ -1,5 +1,10 @@
 /*
 * Algorithmic Pairs Trading class
+*
+* See design document for more information. This file implements the
+* Finite State Machine described in that document and also calculates
+* order amounts and places orders.
+*
 */
 
 #include<iostream>
@@ -53,7 +58,6 @@ void contractDefine( Contract * newContract, int id, char * stock, char *exchang
 	newContract->secType = secType;
 }
 
-// Should be in another function!
 bool PairsTrading::placeOrder(Stock *stock, std::string order, std::string tick, double amount, void *m_pClient, int nextid) {
 	Order *newOrder = new Order();
 	Contract *newContract = new Contract();
@@ -121,14 +125,16 @@ bool PairsTrading::calculateDiff() {
 }
 
 // handle state 1, UNCORRELATED
+// Wait for correlation then move to state 2
 void PairsTrading::State1() {
 
+	// Just starting, so update initial EMAs
 	if (correlatedCount == 0) {
 		s1Data.initialEMA = s1->getCurEMA(s1Data.id);
 		s2Data.initialEMA = s2->getCurEMA(s2Data.id);
 	}
 
-	// need to be correlated for correlatedThreshold seconds to go to state 2
+	// need to be correlated for correlatedThreshold timesteps to go to state 2
 	if (EMAdifference < T1) {
 		correlatedCount++;
 	}
@@ -138,11 +144,9 @@ void PairsTrading::State1() {
 
 	if (correlatedCount >= correlatedThreshold) {
 		state = CORRELATED;
-		fTest << std::endl << "CORRELATED. stock 1 EMA@Div:" << s1Data.initialEMA << ", s2 EMA@Div: " << s2Data.initialEMA << std::endl;
 
-		// in case we diverge right away
-		s1Data.EMAatDivergence = s1->getCurEMA(s1Data.id);
-		s1Data.EMAatDivergence = s2->getCurEMA(s2Data.id);
+		// debugging only
+		fTest << std::endl << "CORRELATED. stock 1 EMA@Div:" << s1Data.initialEMA << ", s2 EMA@Div: " << s2Data.initialEMA << std::endl;
 	}
 }
 
@@ -156,15 +160,18 @@ void PairsTrading::State2() {
 	else if (EMAdifference > T1) {
 		// update so it's always the value right before we diverge
 		s1Data.EMAatDivergence = s1->getCurEMA(s1Data.id);
-		s1Data.EMAatDivergence = s2->getCurEMA(s2Data.id);
+		s2Data.EMAatDivergence = s2->getCurEMA(s2Data.id);
 		state = DIVERGED;
 	}
 }
 
 // handle state 3, DIVERGED (we exploit this)
+// Based on how long we have been diverged (i.e. EMAdifference between
+// thresholds T1 and T2), place an order on each stock. The type of order
+// depends on if the stock is rising or falling.
 void PairsTrading::State3(double current_money,void *m_pclient) {
 
-	// algorithm failure or back to uncorrelated region
+	// if the algorithm has failed or is back to the uncorrelated region
 	if ( (EMAdifference > T2) || (EMAdifference < T1) || (divergedCount >= 100) ) {
 
 		// undo all trades
@@ -186,31 +193,32 @@ void PairsTrading::State3(double current_money,void *m_pclient) {
 		return;
 	}
 
+	// Increment how long we have been diverged so that we know to increase
+	// the amount to invest this time step
 	divergedCount++;
 
 	// start buying/selling
 
-	// if stock 1 is falling
+	// if stock 1 is falling, buy it
 	if (s1Data.currentEMA < s1Data.EMAatDivergence) {
-		// part of Risk management module (separate class? inputs?)
-		// or we could make one risk management module for just this algorithm
+
 		double buyAmount = getInvestmentAmount ("buy",
 			s1Data.currentEMA - s1Data.EMAatDivergence,
 			divergedCount, current_money);
 
-		// part of order management module
 		placeOrder(s1, "BUY", s1->getTick(), buyAmount, m_pclient, s1Data.idListTop);
 
 		s1Data.OrderType[s1Data.idListTop] = "SELL";
 		s1Data.OrderAmount[s1Data.idListTop] = buyAmount;
 		s1Data.idListTop++;
 	}
-	else { // stock 1 is rising
+	else { // stock 1 is rising, sell (short) it
 		double sellAmount = getInvestmentAmount ("sell",
 			s1Data.currentEMA - s1Data.EMAatDivergence,
 			divergedCount, current_money
 			);
 
+		// placeOrder returns false if the stock is not shortable
 		if (placeOrder(s1, "SELL", s1->getTick(), sellAmount, m_pclient, s1Data.idListTop)) {
 			s1Data.OrderType[s1Data.idListTop] = "BUY";
 			s1Data.OrderAmount[s1Data.idListTop] = sellAmount;
@@ -222,7 +230,7 @@ void PairsTrading::State3(double current_money,void *m_pclient) {
 		s1Data.idListTop++;
 	}
 
-	// if stock 2 is falling
+	// if stock 2 is falling, buy it
 	if (s2Data.currentEMA < s2Data.EMAatDivergence) {
 		// part of Risk management module (separate class? inputs?)
 		// or we could make one risk management module for just this algorithm
@@ -236,12 +244,13 @@ void PairsTrading::State3(double current_money,void *m_pclient) {
 		s2Data.OrderAmount[s2Data.idListTop] = buyAmount;
 		s2Data.idListTop++;
 	}
-	else { // stock 2 is rising
+	else { // stock 2 is rising, sell it 
 		double sellAmount = getInvestmentAmount ("sell",
 			s2Data.currentEMA - s2Data.EMAatDivergence,
 			divergedCount, current_money
 			);
 		
+		// placeOrder returns false if the stock is not shortable
 		if (placeOrder(s2, "SELL", s2->getTick(), sellAmount, m_pclient, s2Data.idListTop)) {
 			s2Data.OrderType[s2Data.idListTop] = "BUY";
 			s2Data.OrderAmount[s2Data.idListTop] = sellAmount;
@@ -254,33 +263,52 @@ void PairsTrading::State3(double current_money,void *m_pclient) {
 	}
 }
 
-// handle state 4, FAILED or SELL ALL
+
+// State 4 - undoes all orders (i.e. buy back everything shorted or sell
+// everything bought) while in the diverged region
+//
+// This state is entered for two reasons:
+//
+//	1. Upon algorithm failure (if EMAdifference increases above T2 or we
+//	   are diverged for too long)
+//  2. Upon reconvergence (i.e. profit will now be made)
+//
 void PairsTrading::State4(void *m_pclient) {
-	// undo all trades
+	// undo all trades by looking up the trade type in the OrderType and
+	// OrderAmount maps for each stock and making an opposite order
+
+	// Undo every order on stock 1 since divergence
 	int temp = s1Data.idListTop;
 	for(int i = s1Data.idListBase; i <= temp; i++){
 		placeOrder(s1, s1Data.OrderType[i], s1->getTick(), s1Data.OrderAmount[i], m_pclient, s1Data.idListTop++);
 	}
+	// Undo every order on stock 2 since divergence
 	temp = s2Data.idListTop;
 	for(int i = s2Data.idListBase; i <= temp ; i++){
-		placeOrder(s2, s2Data.OrderType[i], s2->getTick(), s2Data.OrderAmount[i], m_pclient,s2Data.idListTop++ );
+		placeOrder(s2, s2Data.OrderType[i], s2->getTick(), s2Data.OrderAmount[i], m_pclient, s2Data.idListTop++);
 	}
 
+	// Clear the maps for the next time we diverge
 	s1Data.OrderType.empty();
+	s1Data.OrderAmount.empty();
+	s2Data.OrderType.empty();
 	s2Data.OrderAmount.empty();
 
+	// And increment to new order numbers
 	s1Data.idListBase = s1Data.idListTop+1;
+	s1Data.idListTop = s1Data.idListBase;
 	s2Data.idListBase = s2Data.idListTop+1;
-	s2Data.idListTop = s2Data.idListBase;
 	s2Data.idListTop = s2Data.idListBase;
 }
 
-// Begin algorithmic trading
+// Update the current EMAdifference (see design documentation), perform
+// required steps at the current state and then find the next FSM state
 void PairsTrading::doPairsTrading(double current_money, void *m_pclient) {
 
-	// update EMAdifference (see design documentation) and find state
+	// Calculate EMAdifference and return if EMAs are not yet valid
 	if (calculateDiff() == false) return;
 
+	// Debugging only
 	fTest << "Entering state " << state << ", EMA diff: " << EMAdifference << ", ccount: " <<  correlatedCount; 
 
 	// handle current state
@@ -289,5 +317,6 @@ void PairsTrading::doPairsTrading(double current_money, void *m_pclient) {
 	else if (state == 3) State3(current_money, m_pclient);
 	else State4(m_pclient);
 
+	// Debugging only
 	fTest << ". Leaving state " << state << std::endl; 
 }
