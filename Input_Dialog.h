@@ -4,7 +4,7 @@
 // Input_Dialog dialog
 
 class Input_Dialog : public CDialog
-{
+{ 
 	DECLARE_DYNAMIC(Input_Dialog)
 
 public:
