@@ -20,7 +20,7 @@
 
 // PairsTrading Class
 
-PairsTrading::PairsTrading(Stock * _s1, int EMA_id1, Stock * _s2, int EMA_id2) {
+PairsTrading::PairsTrading(Stock * _s1, int EMA_id1, Stock * _s2, int EMA_id2, int i) {
 	s1 = _s1;    
 	s2 = _s2;
 
@@ -29,9 +29,9 @@ PairsTrading::PairsTrading(Stock * _s1, int EMA_id1, Stock * _s2, int EMA_id2) {
 	s2Data.id = EMA_id2;
 	s1Data.initialEMA = s1->getCurEMA(s1Data.id);
 	s2Data.initialEMA = s2->getCurEMA(s2Data.id);
-	s1Data.idListBase = 10000;
+	s1Data.idListBase = 10000*(2*i + 1);
 	s1Data.idListTop = s1Data.idListBase;
-	s2Data.idListBase = 20000;
+	s2Data.idListBase = 20000*2*i;
 	s2Data.idListTop = s2Data.idListBase;
 	// stocks are uncorrelated
 	state = UNCORRELATED;
