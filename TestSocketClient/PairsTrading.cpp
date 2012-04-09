@@ -31,7 +31,7 @@ PairsTrading::PairsTrading(Stock * _s1, int EMA_id1, Stock * _s2, int EMA_id2, i
 	s2Data.initialEMA = s2->getCurEMA(s2Data.id);
 	s1Data.idListBase = 10000*(2*i + 1);
 	s1Data.idListTop = s1Data.idListBase;
-	s2Data.idListBase = 20000*2*i;
+	s2Data.idListBase = 20000*i + 20000;
 	s2Data.idListTop = s2Data.idListBase;
 	
 	s1Data.AmountBought = 0;
@@ -63,7 +63,7 @@ double PairsTrading::getInvestmentAmount (std::string order,
 		Example function:
 		*/
 
-		double Amount_to_invest = current_money * MIN(0.01, 0.0001 * count);
+		double Amount_to_invest = current_money * MIN(0.01, 0.001 * count);
 		return Amount_to_invest;
 }
 
@@ -188,12 +188,13 @@ void PairsTrading::State3(double current_money,void *m_pclient) {
 		if (s1->placeOrder("SELL", sellAmount, m_pclient, s1Data.idListTop, s1Data.AmountBought)) {
 			s1Data.OrderType[s1Data.idListTop] = "BUY";
 			s1Data.OrderAmount[s1Data.idListTop] = sellAmount;
+			s1Data.idListTop++;
 		}
 		else {
 			s1Data.OrderType[s1Data.idListTop] = "NONE";
 			s1Data.OrderAmount[s1Data.idListTop] = 0;
 		}
-		s1Data.idListTop++;
+		
 	}
 
 	// if stock 2 is falling, buy it
@@ -220,12 +221,13 @@ void PairsTrading::State3(double current_money,void *m_pclient) {
 		if (s2->placeOrder("SELL", sellAmount, m_pclient, s2Data.idListTop, s2Data.AmountBought)) {
 			s2Data.OrderType[s2Data.idListTop] = "BUY";
 			s2Data.OrderAmount[s2Data.idListTop] = sellAmount;
+			s2Data.idListTop++;
 		}
 		else {
 			s2Data.OrderType[s2Data.idListTop] = "NONE";
 			s2Data.OrderAmount[s2Data.idListTop] = 0;
 		}
-		s2Data.idListTop++;
+		
 	}
 }
 
@@ -258,11 +260,13 @@ void PairsTrading::State4(void *m_pclient) {
 	std::string order;
 	if (s1Data.AmountBought > 0) order = "SELL";
 	else order = "BUY";
-	s1->placeOrder(order, std::abs(s1Data.AmountBought), m_pclient, s1Data.idListTop++, s1Data.AmountBought);
+	s1Data.idListTop++;
+	s1->placeOrder(order, std::abs(s1Data.AmountBought), m_pclient, s1Data.idListTop, s1Data.AmountBought);
 
 	if (s2Data.AmountBought > 0) order = "SELL";
 	else order = "BUY";
-	s2->placeOrder(order, std::abs(s2Data.AmountBought), m_pclient, s2Data.idListTop++, s2Data.AmountBought);
+	s2Data.idListTop++;
+	s2->placeOrder(order, std::abs(s2Data.AmountBought), m_pclient, s2Data.idListTop, s2Data.AmountBought);
 
 //	s1Data.AmountBought = 0;
 //	s2Data.AmountBought = 0;
