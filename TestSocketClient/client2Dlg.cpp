@@ -33,6 +33,7 @@ std::map<int, Stock *> idToStock;
 std::map<Stock *, PairsTrading *> stockToPairs;
 std::map<CString, Stock *> tickToStock;
 std::map<int, Order *> idToOrder;
+std::map<int, EMACrossover *> idToCross1;
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -903,7 +904,7 @@ int count = 0;
 void CClient2Dlg::doWork(TickerId tickerId, double price){
 	int actionCode = idToAction[tickerId];
 	Stock *newStock;
-	
+	EMACrossover *emac;
 	char text[100];
 
 	/*sprintf(text, "1: The inputs are: ID: %d, Ticker ID: %d", actionCode, tickerId);
@@ -913,21 +914,17 @@ void CClient2Dlg::doWork(TickerId tickerId, double price){
 	case ID_AUTOEMA:
 		newStock = idToStock[tickerId];
 		newStock->update(tickerId, price);
-		count++;
-		if(count >= 2){
-			if (money == 0) {
-				break;
-			}
-			newStock = idToStock[tickerId];
-			EMACrossover *emac;
-			//= stockToPairs[newStock];
-			/*sprintf(text, "Money: %f", money);
-			MessageBox(text);*/
-			emac->doEMACrossover(money, m_pClient);
-			money = 0;
-			count = 0;
-			m_pClient->reqAccountUpdates(true,"Nothing");	
+		m_pClient->reqAccountUpdates(true,"Nothing");
+		if (money == 0) {
+			break;
 		}
+
+		emac = idToCross1[tickerId];
+		///*sprintf(text, "Money: %f", money);
+		//MessageBox(text);*/
+		emac->doEMACrossover(money, m_pClient);
+		money = 0;
+		
 		break;
 	case ID_AUTOEMA2:
 		break;
@@ -1900,12 +1897,20 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 	Order *newOrder;
 	switch (actionID)	{
 	case ID_AUTOEMA:
-		//TO DO
 		file.getline(id, 5, '\n');
 		file.getline(stock, 100, '\n');
 		file.getline(orderSize, 10, '\n');
 		contractDefine(newContract, id, stock,"SMART", "ISLAND", "USD", 0, false, "STK" );
-
+		newStock = new Stock(stock);
+		newStock->newMACD(atoi(id), 26, 12, 9);
+		eman = new EMACrossover(newStock, atoi(id), atoi(orderSize));
+		idToCross1[atoi(id)] = eman;
+		idToStock[atoi(id)] = newStock;
+		idToAction[atoi(id)] = actionID;
+		m_pClient->reqRealTimeBars( atoi(id), *newContract,
+			5 /* TODO: parse and use m_dlgOrder->m_barSizeSetting) */,
+			"TRADES", true);
+		m_pClient->reqAccountUpdates(true,"Nothing");
 		break;
 	case ID_AUTOEMA2:
 		//TO DO
