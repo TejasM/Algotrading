@@ -41,6 +41,7 @@ void EMACrossover::initCommon() {
 	emacFile << "Current State is " << curState << std::endl;
 	prevFast = -1;
 	prevSlow = -1;
+	idListTop = 100000;
 	amountBought = 0;
 }
 
@@ -105,6 +106,9 @@ void EMACrossover::doEMACrossoverWithStop(double current_money, void *m_pclient)
 
 void EMACrossover::doEMACrossover(double current_money, void *m_pclient) {
 	//check if values are valid
+
+	emacFile << "Curstate is " << getState() << std::endl;
+
 	if (!macd->isValid()) {
 		return;
 	}

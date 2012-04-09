@@ -42,14 +42,25 @@ class PairsTrading {
 		struct StockInfo {
 			int id; // EMA id (for getEMA(id))
 			// Also make an ID for the 
-			double initialEMA; // at start of state 1
-			double currentEMA;
+
+			// EMA at the start of state 1, needed to calculate %differences
+			// (see below) and select next state
+			double initialEMA;
+
+			double currentEMA; // at each time step
+	
+			// Since initialEMA. This is used to calculate EMAdifference.
 			double percentChange;
-			double EMAatDivergence;
-			double amountInvested;
+			
+			// Used to calculate % change since divergence
+			double EMAatDivergence; // NO LONGER USED
+
+			// Used to determine whether to buy or sell
+			double percentChangeSinceDiv; // NO LONGER USED
+			
+			// for placing order
 			int idListBase;
 			int idListTop;
-
 			double AmountBought; // IN SHARES. -ve means shorted
 			std::map<int, std::string> OrderType; 
 			std::map<int, double> OrderAmount; 

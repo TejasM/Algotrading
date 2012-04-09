@@ -914,7 +914,7 @@ void CClient2Dlg::doWork(TickerId tickerId, double price){
 	case ID_AUTOEMA:
 		newStock = idToStock[tickerId];
 		newStock->update(tickerId, price);
-		m_pClient->reqAccountUpdates(true,"Nothing");
+		//m_pClient->reqAccountUpdates(true,"Nothing");
 		if (money == 0) {
 			break;
 		}
@@ -923,7 +923,9 @@ void CClient2Dlg::doWork(TickerId tickerId, double price){
 		///*sprintf(text, "Money: %f", money);
 		//MessageBox(text);*/
 		emac->doEMACrossover(money, m_pClient);
+
 		money = 0;
+		m_pClient->reqAccountUpdates(true,"Nothing");
 		
 		break;
 	case ID_AUTOEMA2:
