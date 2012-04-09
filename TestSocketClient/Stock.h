@@ -34,6 +34,9 @@ class Stock{
 		// see which ema and macd id it is and update it
 		// and write to file
 		void update(int id, double price);
+		bool placeOrder(std::string order, double amount, 
+			void *m_pClient, int nextid, double & AmountBought);
+
 
 	private:
 	    std::string tick;

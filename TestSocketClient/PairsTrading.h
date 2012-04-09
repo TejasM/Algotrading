@@ -49,6 +49,8 @@ class PairsTrading {
 			double amountInvested;
 			int idListBase;
 			int idListTop;
+
+			double AmountBought; // IN SHARES. -ve means shorted
 			std::map<int, std::string> OrderType; 
 			std::map<int, double> OrderAmount; 
 		};
@@ -68,7 +70,6 @@ class PairsTrading {
 		void State2();
 		void State3(double current_money, void *m_pclient);
 		void State4(void *m_pclient);
-		bool placeOrder(Stock *stock,std::string order, std::string tick, double amount, void *m_pClient, int nextid);
 		
 		double getInvestmentAmount (std::string order, 
 				double diff, int count, double current_money);

@@ -33,6 +33,10 @@ PairsTrading::PairsTrading(Stock * _s1, int EMA_id1, Stock * _s2, int EMA_id2, i
 	s1Data.idListTop = s1Data.idListBase;
 	s2Data.idListBase = 20000*2*i;
 	s2Data.idListTop = s2Data.idListBase;
+	
+	s1Data.AmountBought = 0;
+	s2Data.AmountBought = 0;
+	
 	// stocks are uncorrelated
 	state = UNCORRELATED;
 	correlatedCount = 0; // been correlated for 0 seconds
@@ -44,44 +48,6 @@ PairsTrading::PairsTrading(Stock * _s1, int EMA_id1, Stock * _s2, int EMA_id2, i
 
 PairsTrading::~PairsTrading() {
 	// delete heap memory
-}
-
-void contractDefine( Contract * newContract, int id, char * stock, char *exchange, char *primaryExchange, char *currency, double strike, bool includeExpired, char *secType ) 
-{
-	newContract->conId = id;
-	newContract->symbol = stock;
-	newContract->exchange = exchange;
-	newContract->primaryExchange = primaryExchange;
-	newContract->currency = currency;
-	newContract->strike = strike;
-	newContract->includeExpired = includeExpired;
-	newContract->secType = secType;
-}
-
-bool PairsTrading::placeOrder(Stock *stock, std::string order, std::string tick, double amount, void *m_pClient, int nextid) {
-	Order *newOrder = new Order();
-	Contract *newContract = new Contract();
-	
-	
-	contractDefine(newContract, nextid, (char *) tick.c_str(),"SMART", "ISLAND", "USD", 0, false, "STK" );
-	
-
-	newOrder->action = (char *) order.c_str();
-	newOrder->orderId = nextid;
-	double curPrice = (stock->getPrice());
-	newOrder->totalQuantity =(long) (amount)/curPrice;
-	newOrder->lmtPrice = stock->getPrice();
-	newOrder->orderType = "LMT";
-	if(order == "BUY") {
-		((EClient*) m_pClient)->placeOrder(nextid, *newContract, *newOrder);
-	}
-	else if (order == "SELL") {
-		if(stock->isShortable()) {
-			((EClient*) m_pClient)->placeOrder(nextid, *newContract, *newOrder);
-		}
-		else return false;
-	}
-	return true;
 }
 
 
@@ -206,7 +172,7 @@ void PairsTrading::State3(double current_money,void *m_pclient) {
 			s1Data.currentEMA - s1Data.EMAatDivergence,
 			divergedCount, current_money);
 
-		placeOrder(s1, "BUY", s1->getTick(), buyAmount, m_pclient, s1Data.idListTop);
+		s1->placeOrder("BUY", buyAmount, m_pclient, s1Data.idListTop, s1Data.AmountBought);
 
 		s1Data.OrderType[s1Data.idListTop] = "SELL";
 		s1Data.OrderAmount[s1Data.idListTop] = buyAmount;
@@ -219,7 +185,7 @@ void PairsTrading::State3(double current_money,void *m_pclient) {
 			);
 
 		// placeOrder returns false if the stock is not shortable
-		if (placeOrder(s1, "SELL", s1->getTick(), sellAmount, m_pclient, s1Data.idListTop)) {
+		if (s1->placeOrder("SELL", sellAmount, m_pclient, s1Data.idListTop, s1Data.AmountBought)) {
 			s1Data.OrderType[s1Data.idListTop] = "BUY";
 			s1Data.OrderAmount[s1Data.idListTop] = sellAmount;
 		}
@@ -238,7 +204,7 @@ void PairsTrading::State3(double current_money,void *m_pclient) {
 			s2Data.currentEMA - s2Data.EMAatDivergence,
 			divergedCount, current_money
 			);
-		placeOrder(s2, "BUY", s2->getTick(), buyAmount, m_pclient, s2Data.idListTop);
+		s2->placeOrder("BUY", buyAmount, m_pclient, s2Data.idListTop, s2Data.AmountBought);
 
 		s2Data.OrderType[s2Data.idListTop] = "SELL";
 		s2Data.OrderAmount[s2Data.idListTop] = buyAmount;
@@ -251,7 +217,7 @@ void PairsTrading::State3(double current_money,void *m_pclient) {
 			);
 		
 		// placeOrder returns false if the stock is not shortable
-		if (placeOrder(s2, "SELL", s2->getTick(), sellAmount, m_pclient, s2Data.idListTop)) {
+		if (s2->placeOrder("SELL", sellAmount, m_pclient, s2Data.idListTop, s2Data.AmountBought)) {
 			s2Data.OrderType[s2Data.idListTop] = "BUY";
 			s2Data.OrderAmount[s2Data.idListTop] = sellAmount;
 		}
@@ -278,6 +244,7 @@ void PairsTrading::State4(void *m_pclient) {
 	// OrderAmount maps for each stock and making an opposite order
 
 	// Undo every order on stock 1 since divergence
+/*
 	int temp = s1Data.idListTop;
 	for(int i = s1Data.idListBase; i <= temp; i++){
 		placeOrder(s1, s1Data.OrderType[i], s1->getTick(), s1Data.OrderAmount[i], m_pclient, s1Data.idListTop++);
@@ -287,6 +254,18 @@ void PairsTrading::State4(void *m_pclient) {
 	for(int i = s2Data.idListBase; i <= temp ; i++){
 		placeOrder(s2, s2Data.OrderType[i], s2->getTick(), s2Data.OrderAmount[i], m_pclient, s2Data.idListTop++);
 	}
+*/
+	std::string order;
+	if (s1Data.AmountBought > 0) order = "SELL";
+	else order = "BUY";
+	s1->placeOrder(order, std::abs(s1Data.AmountBought), m_pclient, s1Data.idListTop++, s1Data.AmountBought);
+
+	if (s2Data.AmountBought > 0) order = "SELL";
+	else order = "BUY";
+	s2->placeOrder(order, std::abs(s2Data.AmountBought), m_pclient, s2Data.idListTop++, s2Data.AmountBought);
+
+//	s1Data.AmountBought = 0;
+//	s2Data.AmountBought = 0;
 
 	// Clear the maps for the next time we diverge
 	s1Data.OrderType.empty();

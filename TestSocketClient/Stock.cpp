@@ -3,24 +3,25 @@
  */
 
 #include "Stock.h"
+#include "Order.h"
+#include "Contract.h"
+#include "EClientSocket.h" 
 //#include "winbase.h"
 
-using namespace std;
-
 // constructor
-Stock::Stock(string _tick) {
+Stock::Stock(std::string _tick) {
 
 	// initialize tick and times for EMA and MACD
 	tick = _tick;
 	curPrice = -1;
 	shortable = false;
 	// Create and write to files
-	string filename;
+	std::string filename;
 
 	// Price, ofstream name fPrice, filename RIM_Price.txt
 	filename = this->tick + "_Price.txt";
 	fPrice.open(filename.c_str());
-	fPrice << "Price" << endl;
+	fPrice << "Price" << std::endl;
 }
 
 Stock::~Stock() {
@@ -53,18 +54,59 @@ void Stock::newEMA(int num_periods, int id) {
 	curEMA[id] = -1;
 	
 	// Update file map
-	string filename = this->tick + "_EMA_Time";
+	std::string filename = this->tick + "_EMA_Time";
 	char temp [10];
 	itoa(num_periods, temp, 10);
 	filename += temp;
 	filename += "s.txt";
 
-	ofstream * out = new ofstream(filename.c_str());
+	std::ofstream * out = new std::ofstream(filename.c_str());
 //	fEMA.insert( make_pair(id, out) ); // don't need this
 	fEMA[id] = out;
-	*fEMA[id] << "EMA" << endl;
+	*fEMA[id] << "EMA" << std::endl;
 }
 
+
+void contractDefine( Contract * newContract, int id, char * stock, char *exchange, char *primaryExchange, char *currency, double strike, bool includeExpired, char *secType ) 
+{
+	newContract->conId = id;
+	newContract->symbol = stock;
+	newContract->exchange = exchange;
+	newContract->primaryExchange = primaryExchange;
+	newContract->currency = currency;
+	newContract->strike = strike;
+	newContract->includeExpired = includeExpired;
+	newContract->secType = secType;
+}
+
+bool Stock::placeOrder(std::string order, double amount, 
+		void *m_pClient, int nextid, double & AmountBought) {
+
+
+	Order *newOrder = new Order();
+	Contract *newContract = new Contract();
+	
+	contractDefine(newContract, nextid, (char *) tick.c_str(),"SMART", "ISLAND", "USD", 0, false, "STK" );
+
+	newOrder->action = (char *) order.c_str();
+	newOrder->orderId = nextid;
+	newOrder->totalQuantity =(long) (amount)/curPrice;
+	newOrder->lmtPrice = curPrice;
+	newOrder->orderType = "LMT";
+	if(order == "BUY") {
+		((EClient*) m_pClient)->placeOrder(nextid, *newContract, *newOrder);
+		AmountBought += newOrder->totalQuantity;
+	}
+	else if (order == "SELL") {
+		if(shortable || (AmountBought*curPrice >= amount)) {
+			((EClient*) m_pClient)->placeOrder(nextid, *newContract, *newOrder);
+			AmountBought -= newOrder->totalQuantity;
+		}
+		else return false;
+	}
+	return true;
+}
+	
 
 void Stock::newMACD(int id) {
 
@@ -76,11 +118,11 @@ void Stock::newMACD(int id) {
 	curMACD[id] = -1;
 	
 	// Update file map
-	string filename = this->tick + "_MACD.txt";
+	std::string filename = this->tick + "_MACD.txt";
 
-	ofstream * out = new ofstream(filename.c_str());
+	std::ofstream * out = new std::ofstream(filename.c_str());
 	fMACD[id] = out;
-	*fMACD[id] << "MACD\tHistogram\tSignal" << endl;
+	*fMACD[id] << "MACD\tHistogram\tSignal" << std::endl;
 }
 
 
@@ -116,7 +158,7 @@ double Stock::getPrice() {
 	return curPrice;
 }
 
-string Stock::getTick() {
+std::string Stock::getTick() {
 	return tick;
 }
 
@@ -128,7 +170,7 @@ void Stock::update(int id, double price) {
 	MessageBox(text);*/
 	// write to file
 	if(fPrice.is_open()){
-		fPrice << curPrice << endl;
+		fPrice << curPrice << std::endl;
 	}else{
 		
 	}
@@ -139,7 +181,7 @@ void Stock::update(int id, double price) {
 		curEMA[id] = EMAs[id]->calculateEMA(price);
 		if (EMAs[id]->isValid()) {
 			// write to file
-			*fEMA[id] << curEMA[id] << endl;
+			*fEMA[id] << curEMA[id] << std::endl;
 		}
 		else curEMA[id]=-1;
 	}
@@ -152,7 +194,7 @@ void Stock::update(int id, double price) {
 			double histogram = MACDs[id]->getHistogram();
 			double signal = MACDs[id]->getSignal();
 			// write to file
-			*fMACD[id] << curMACD[id] << "\t" << histogram << "\t" << signal << endl;
+			*fMACD[id] << curMACD[id] << "\t" << histogram << "\t" << signal << std::endl;
 		}
 		else curMACD[id]=-1;
 	}
