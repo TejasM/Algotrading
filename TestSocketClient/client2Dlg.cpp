@@ -24,6 +24,7 @@
 #include "Stock.h"
 #include <map>
 #include "PairsTrading.h"
+#include "EMACrossover.h"
 
 #include "OrderState.h"
 
@@ -909,6 +910,23 @@ void CClient2Dlg::doWork(TickerId tickerId, double price){
 	switch (actionCode)
 	{
 	case ID_AUTOEMA:
+		newStock = idToStock[tickerId];
+		newStock->update(tickerId, price);
+		count++;
+		if(count >= 2){
+			if (money == 0) {
+				break;
+			}
+			newStock = idToStock[tickerId];
+			EMACrossover *emac;
+			//= stockToPairs[newStock];
+			/*sprintf(text, "Money: %f", money);
+			MessageBox(text);*/
+			emac->doEMACrossover(money, m_pClient);
+			money = 0;
+			count = 0;
+			m_pClient->reqAccountUpdates(true,"Nothing");	
+		}
 		break;
 	case ID_AUTOEMA2:
 		break;

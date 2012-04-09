@@ -15,26 +15,33 @@ typedef enum {
 	INVALID
 } state;
 
+#define MIN_CROSSOVER_STRENGTH 45 //this is how strong a crossover needs to be for us to respond to it
+
 class EMACrossover {
     public:
-        EMACrossover(Stock *_s, int _macdID, int _orderSize, double _d1, double _d2);
-		EMACrossover(Stock *_s, int _macdID, int _orderSize);
+        EMACrossover(Stock *_s, int _macdID, int _orderSize, double _d1, double _d2); //constructor for stop
+		EMACrossover(Stock *_s, int _macdID, int _orderSize); //constructor for no stop
         ~EMACrossover();
         state getState(); 
-        void doEMACrossover();
-		void doEMACrossoverWithStop();
+        void doEMACrossover(double current_money, void *m_pclient);
+		void doEMACrossoverWithStop(double current_money, void *m_pclient);
     private:
-		void initCommon();
+		void initCommon(); //for parts of constructor common to both stop / no stop
         Stock *s;
 		long orderSize;
-		MACD *macd;
+		MACD *macd; 
         state curState;
-		double curMACD;
 		double stopWin(double fast, double d1);
 		double stopLoss(double slow, double d2);
 		double d1, d2;
 		double riskManagement();
+		bool placeOrder(Stock *stock, std::string order, std::string tick, double amount, void *m_pClient, int nextid);
 		std::ofstream emacFile;
+		double amountInvested;
+		int idListBase;
+		int idListTop;
+		std::map<int, std::string> OrderType; 
+		std::map<int, double> OrderAmount; 
 };
 
 #endif

@@ -6,24 +6,23 @@
 #define EMA_H
 
 #include <iostream>
-//using namespace std;
 
 /* The EMA Class. Used to calculate an exponential moving average. The class is for computation only, and has no notion of what stock it is being used for */
 
 class EMA {
-	double curEMA;
+	double curEMA; //stores the most up to date EMA value
 	int validCount; //used to calculate whether or not EMA is valid because not enough computations have been done. Counts down from numPeriods
 	double alpha; //ema constant
 public:
 	EMA(int numPeriods);
 	~EMA();
-	double calculateEMA(double curVal); //compute the next sequence in EMA based on stored previous value and passed in paramter
+	double calculateEMA(double curVal); //compute the next sequence in EMA based on stored previous EMA and current price. Returns new EMA
 	double getEMA();
-	bool isValid(); //is the EMA valid
+	bool isValid();
 };
 
 /* MACD computation class. Contains 3 EMA's, outputs histogram and macd.
- * defaults to 12/26/9 
+ * defaults to 12(fast) 26(slow) 9(signal)
  * MACD is EMAfast - EMAslow
  * Signal is an EMA of MACD
  * Histogram is MACD - signal
@@ -37,14 +36,13 @@ class MACD {
 	double curSignal;
 	double curHistogram;
 public:
-	MACD(int slowPeriod = 26, int fastPeriod = 26, int signalPeriod = 9); //default args just call MACD()
-	//Call this function with slowValue, fastValue. Pass in references to assign macd/signal/histogram. 
-	double calculateMACD(double curVal);
+	MACD(int slowPeriod = 26, int fastPeriod = 26, int signalPeriod = 9); //default args 
+	double calculateMACD(double curVal); //calculates macd, histogram and signal based on their previous values and the current price. Returns new macd
 	double getMACD();
 	double getHistogram();
 	double getSignal();
-	double getFast(); 
-	double getSlow();
+	double getFast(); //get the fast ema
+	double getSlow(); //get the slow ema
 	~MACD();
 	bool isValid();
 };

@@ -2,7 +2,9 @@
 
 using namespace std;
 /* EMA */
-EMA::EMA(int numPeriods) :  curEMA(-1), validCount(numPeriods)
+EMA::EMA(int numPeriods) 
+	:  curEMA(-1), //start invalid
+	validCount(numPeriods)
 {
 	alpha = ((double)2)/((double)numPeriods+(double)1); 
 }
@@ -17,9 +19,9 @@ bool EMA::isValid() {
 
 double EMA::calculateEMA(double curVal) {
 	if (curEMA < 0 ) {
-		curEMA = curVal;
+		curEMA = curVal; //set initial EMA to the price at time of init
 	} else {
-		curEMA = curVal * alpha + curEMA * (1 - alpha); //calculate EMA, store it
+		curEMA = curVal * alpha + curEMA * (1 - alpha); //calculate EMA recursively
 	}
 	if (validCount > 0) {
 		validCount--;
@@ -32,7 +34,13 @@ double EMA::getEMA() {
 }
 
 //MACD constructor
-MACD::MACD(int slowPeriod  , int fastPeriod , int signalPeriod) : slow(4), fast(2), signal(3), curMACD(0), curHistogram(0), curSignal(0)
+MACD::MACD(int slowPeriod  , int fastPeriod , int signalPeriod) 
+	: slow(slowPeriod), 
+	fast(fastPeriod), 
+	signal(signalPeriod), 
+	curMACD(-1), 
+	curHistogram(-1), 
+	curSignal(-1)
 {
 }
 
@@ -62,7 +70,7 @@ double MACD::getSignal() {
 
 bool MACD::isValid()
 {
-	return (signal.isValid() && slow.isValid()); //both signal and slow must be valid
+	return (signal.isValid() && slow.isValid()); //both signal and slow must be valid for macd to be valid
 }
 
 double MACD::getFast() {
