@@ -181,7 +181,7 @@ bool EMACrossover::placeOrder(Stock *stock, std::string order, std::string tick,
 	Contract *newContract = new Contract();
 	
 	
-	emacontractDefine(newContract, nextid, (char *) tick.c_str(),"SMART", "ISLAND", "USD", 0, false, "STK" );
+	emabcontractDefine(newContract, nextid, (char *) tick.c_str(),"SMART", "ISLAND", "USD", 0, false, "STK" );
 	
 
 	newOrder->action = (char *) order.c_str();
