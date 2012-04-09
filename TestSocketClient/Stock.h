@@ -14,6 +14,7 @@
 
 // Strategy idea: Exponential Ribbon
 
+int idListTop = 100000;
 // Dummy stock class
 class Stock{
     public:
@@ -35,7 +36,7 @@ class Stock{
 		// and write to file
 		void update(int id, double price);
 		bool placeOrder(std::string order, double amount, 
-			void *m_pClient, int nextid, double & AmountBought);
+			void *m_pClient, double & AmountBought);
 
 
 	private:

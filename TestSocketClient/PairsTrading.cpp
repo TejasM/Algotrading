@@ -20,7 +20,7 @@
 
 // PairsTrading Class
 
-PairsTrading::PairsTrading(Stock * _s1, int EMA_id1, Stock * _s2, int EMA_id2, int i) {
+PairsTrading::PairsTrading(Stock * _s1, int EMA_id1, Stock * _s2, int EMA_id2) {
 	s1 = _s1;    
 	s2 = _s2;
 
@@ -29,10 +29,6 @@ PairsTrading::PairsTrading(Stock * _s1, int EMA_id1, Stock * _s2, int EMA_id2, i
 	s2Data.id = EMA_id2;
 	s1Data.initialEMA = s1->getCurEMA(s1Data.id);
 	s2Data.initialEMA = s2->getCurEMA(s2Data.id);
-	s1Data.idListBase = 10000*(2*i + 1);
-	s1Data.idListTop = s1Data.idListBase;
-	s2Data.idListBase = 20000*i + 20000;
-	s2Data.idListTop = s2Data.idListBase;
 	
 	s1Data.AmountBought = 0;
 	s2Data.AmountBought = 0;
@@ -176,11 +172,11 @@ void PairsTrading::State3(double current_money,void *m_pclient) {
 			s1Data.currentEMA - s1Data.EMAatDivergence,
 			divergedCount, current_money);
 
-		s1->placeOrder("BUY", buyAmount, m_pclient, s1Data.idListTop, s1Data.AmountBought);
+		s1->placeOrder("BUY", buyAmount, m_pclient, s1Data.AmountBought);
 
-		s1Data.OrderType[s1Data.idListTop] = "SELL";
-		s1Data.OrderAmount[s1Data.idListTop] = buyAmount;
-		s1Data.idListTop++;
+		s1Data.OrderType[idListTop] = "SELL";
+		s1Data.OrderAmount[idListTop] = buyAmount;
+		idListTop++;
 
 		// SELL STOCK 2
 		double sellAmount = getInvestmentAmount ("sell",
@@ -189,14 +185,14 @@ void PairsTrading::State3(double current_money,void *m_pclient) {
 			);
 		
 		// placeOrder returns false if the stock is not shortable
-		if (s2->placeOrder("SELL", sellAmount, m_pclient, s2Data.idListTop, s2Data.AmountBought)) {
-			s2Data.OrderType[s2Data.idListTop] = "BUY";
-			s2Data.OrderAmount[s2Data.idListTop] = sellAmount;
-			s2Data.idListTop++;
+		if (s2->placeOrder("SELL", sellAmount, m_pclient, s2Data.AmountBought)) {
+			s2Data.OrderType[idListTop] = "BUY";
+			s2Data.OrderAmount[idListTop] = sellAmount;
+			idListTop++;
 		}
 		else {
-			s2Data.OrderType[s2Data.idListTop] = "NONE";
-			s2Data.OrderAmount[s2Data.idListTop] = 0;
+			s2Data.OrderType[idListTop] = "NONE";
+			s2Data.OrderAmount[idListTop] = 0;
 		}
 		
 	}
@@ -207,11 +203,11 @@ void PairsTrading::State3(double current_money,void *m_pclient) {
 			s2Data.currentEMA - s2Data.EMAatDivergence,
 			divergedCount, current_money
 			);
-		s2->placeOrder("BUY", buyAmount, m_pclient, s2Data.idListTop, s2Data.AmountBought);
+		s2->placeOrder("BUY", buyAmount, m_pclient, s2Data.AmountBought);
 
-		s2Data.OrderType[s2Data.idListTop] = "SELL";
-		s2Data.OrderAmount[s2Data.idListTop] = buyAmount;
-		s2Data.idListTop++;
+		s2Data.OrderType[idListTop] = "SELL";
+		s2Data.OrderAmount[idListTop] = buyAmount;
+		idListTop++;
 
 		// SELL STOCK 1
 		double sellAmount = getInvestmentAmount ("sell",
@@ -220,15 +216,15 @@ void PairsTrading::State3(double current_money,void *m_pclient) {
 			);
 
 		// placeOrder returns false if the stock is not shortable
-		if (s1->placeOrder("SELL", sellAmount, m_pclient, s1Data.idListTop, s1Data.AmountBought)) {
-			s1Data.OrderType[s1Data.idListTop] = "BUY";
-			s1Data.OrderAmount[s1Data.idListTop] = sellAmount;
+		if (s1->placeOrder("SELL", sellAmount, m_pclient, s1Data.AmountBought)) {
+			s1Data.OrderType[idListTop] = "BUY";
+			s1Data.OrderAmount[idListTop] = sellAmount;
 		}
 		else {
-			s1Data.OrderType[s1Data.idListTop] = "NONE";
-			s1Data.OrderAmount[s1Data.idListTop] = 0;
+			s1Data.OrderType[idListTop] = "NONE";
+			s1Data.OrderAmount[idListTop] = 0;
 		}
-		s1Data.idListTop++;
+		idListTop++;
 	}
 }
 
@@ -261,13 +257,13 @@ void PairsTrading::State4(void *m_pclient) {
 	std::string order;
 	if (s1Data.AmountBought > 0) order = "SELL";
 	else order = "BUY";
-	s1Data.idListTop++;
-	s1->placeOrder(order, std::abs(s1Data.AmountBought), m_pclient, s1Data.idListTop, s1Data.AmountBought);
+	idListTop++;
+	s1->placeOrder(order, std::abs(s1Data.AmountBought), m_pclient, s1Data.AmountBought);
 
 	if (s2Data.AmountBought > 0) order = "SELL";
 	else order = "BUY";
-	s2Data.idListTop++;
-	s2->placeOrder(order, std::abs(s2Data.AmountBought), m_pclient, s2Data.idListTop, s2Data.AmountBought);
+	idListTop++;
+	s2->placeOrder(order, std::abs(s2Data.AmountBought), m_pclient, s2Data.AmountBought);
 
 //	s1Data.AmountBought = 0;
 //	s2Data.AmountBought = 0;
@@ -279,10 +275,6 @@ void PairsTrading::State4(void *m_pclient) {
 	s2Data.OrderAmount.empty();
 
 	// And increment to new order numbers
-	s1Data.idListBase = s1Data.idListTop+1;
-	s1Data.idListTop = s1Data.idListBase;
-	s2Data.idListBase = s2Data.idListTop+1;
-	s2Data.idListTop = s2Data.idListBase;
 }
 
 // Update the current EMAdifference (see design documentation), perform

@@ -67,7 +67,7 @@ void Stock::newEMA(int num_periods, int id) {
 }
 
 
-void contractDefine( Contract * newContract, int id, char * stock, char *exchange, char *primaryExchange, char *currency, double strike, bool includeExpired, char *secType ) 
+void contractDefine( Contract * newContract, int id, const char * stock, char *exchange, char *primaryExchange, char *currency, double strike, bool includeExpired, char *secType ) 
 {
 	newContract->conId = id;
 	newContract->symbol = stock;
@@ -80,26 +80,26 @@ void contractDefine( Contract * newContract, int id, char * stock, char *exchang
 }
 
 bool Stock::placeOrder(std::string order, double amount, 
-		void *m_pClient, int nextid, double & AmountBought) {
+		void *m_pClient, double & AmountBought) {
 
 
 	Order *newOrder = new Order();
 	Contract *newContract = new Contract();
 	
-	contractDefine(newContract, nextid, (char *) tick.c_str(),"SMART", "ISLAND", "USD", 0, false, "STK" );
+	contractDefine(newContract,idListTop, this->tick.c_str(), "SMART", "ISLAND", "USD", 0, false, "STK" );
 
 	newOrder->action = (char *) order.c_str();
-	newOrder->orderId = nextid;
+	newOrder->orderId = idListTop;
 	newOrder->totalQuantity =(long) (amount)/curPrice;
 	newOrder->lmtPrice = curPrice;
 	newOrder->orderType = "LMT";
 	if(order == "BUY") {
-		((EClient*) m_pClient)->placeOrder(nextid, *newContract, *newOrder);
+		((EClient*) m_pClient)->placeOrder(idListTop, *newContract, *newOrder);
 		AmountBought += newOrder->totalQuantity;
 	}
 	else if (order == "SELL") {
 		if(shortable || (AmountBought*curPrice >= amount)) {
-			((EClient*) m_pClient)->placeOrder(nextid, *newContract, *newOrder);
+			((EClient*) m_pClient)->placeOrder(idListTop, *newContract, *newOrder);
 			AmountBought -= newOrder->totalQuantity;
 		}
 		else return false;

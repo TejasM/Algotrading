@@ -2092,7 +2092,7 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 		
 		contractDefine(newContract, id, stock,"SMART", "ISLAND", "USD", 0, false, "STK" );
 		contractDefine(newContract2, id2, stock2,"SMART", "ISLAND", "USD", 0, false, "STK" );
-		pairs = new PairsTrading(newStock, atoi(id), newStock2, atoi(id2), i);
+		pairs = new PairsTrading(newStock, atoi(id), newStock2, atoi(id2));
 		i++;
 		newStock->newEMA(5, atoi(id));
 		idToStock[atoi(id)] = newStock;

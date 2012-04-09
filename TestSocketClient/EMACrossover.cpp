@@ -41,7 +41,6 @@ void EMACrossover::initCommon() {
 	emacFile << "Current State is " << curState << std::endl;
 	prevFast = -1;
 	prevSlow = -1;
-	idListTop = 100000;
 	amountBought = 0;
 }
 
@@ -72,11 +71,11 @@ void EMACrossover::doEMACrossoverWithStop(double current_money, void *m_pclient)
 	if (curState == WAITING_FOR_STOP) {
 		if (curPrice > stopWin(macd->getFast(), d1)) {
 			emacFile << "STOP WIN: Selling order " << orderSize << " at price " << s->getPrice() <<std::endl;
-			s->placeOrder("SELL", orderSize*(s->getPrice()), m_pclient, idListTop, (double &) amountBought);
+			s->placeOrder("SELL", orderSize*(s->getPrice()), m_pclient, (double &) amountBought);
 			return;
 		} else if (curPrice < stopLoss(macd->getSlow(), d2)) {
 			emacFile << "STOP LOSS: Selling order " << orderSize << " at price " << s->getPrice() <<std::endl;
-			s->placeOrder("BUY", orderSize*(s->getPrice()), m_pclient, idListTop, (double &) amountBought);
+			s->placeOrder("BUY", orderSize*(s->getPrice()), m_pclient, (double &) amountBought);
 			return;
 		}
 		return;
@@ -90,7 +89,7 @@ void EMACrossover::doEMACrossoverWithStop(double current_money, void *m_pclient)
 			curState = WAITING_FOR_STOP;
 			emacFile << "Strength of crossover is " << degrees << std::endl;
 			//time to buy!
-			s->placeOrder("BUY", orderSize*(s->getPrice()), m_pclient, idListTop, (double &) amountBought);
+			s->placeOrder("BUY", orderSize*(s->getPrice()), m_pclient, (double &) amountBought);
 		}
 	} else {
 		if (curState == FAST_BELOW_SLOW) {
@@ -99,7 +98,7 @@ void EMACrossover::doEMACrossoverWithStop(double current_money, void *m_pclient)
 			curState = FAST_BELOW_SLOW;
 			emacFile << "Strength of crossover is " << degrees << std::endl;
 			//time to sell
-			s->placeOrder("SELL", orderSize*(s->getPrice()), m_pclient, idListTop, (double &) amountBought);
+			s->placeOrder("SELL", orderSize*(s->getPrice()), m_pclient, (double &) amountBought);
 		}
 	}
 }
@@ -134,7 +133,7 @@ void EMACrossover::doEMACrossover(double current_money, void *m_pclient) {
 			emacFile << "Strength of crossover is " << degrees << std::endl;
 			//time to buy!
 			if (degrees > MIN_CROSSOVER_STRENGTH) {
-				s->placeOrder("BUY", orderSize*(s->getPrice()), m_pclient, idListTop, (double &) amountBought);
+				s->placeOrder("BUY", orderSize*(s->getPrice()), m_pclient, (double &) amountBought);
 				emacFile << "Buying order " << orderSize << " at price " << s->getPrice() << std::endl;
 				idListTop++;
 			}
@@ -151,7 +150,7 @@ void EMACrossover::doEMACrossover(double current_money, void *m_pclient) {
 			//Questions: what does the project sheet and the times 2 mean? 
 			//What if I want to actually sell, and not short
 			if (degrees > MIN_CROSSOVER_STRENGTH) { 
-				s->placeOrder("SELL", orderSize*(s->getPrice()), m_pclient, idListTop, (double &) amountBought);
+				s->placeOrder("SELL", orderSize*(s->getPrice()), m_pclient, (double &) amountBought);
 				emacFile << "Selling order " << orderSize << " at price " << s->getPrice() << std::endl;
 				idListTop++;
 			}
@@ -172,7 +171,7 @@ double EMACrossover::riskManagement() {
 	double magSlow = sqrt(pow(2.5, 2) + pow((slow-prevSlow)/2, 2));
 	double angle = std::abs(dotProduct/(magFast*magSlow));
 	double pi = atan((double) 1) * 4;
-	double degrees = angle * pi / 180;
+	double degrees = angle * 180/ pi;
 	return degrees;
 }
 

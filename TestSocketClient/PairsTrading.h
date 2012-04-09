@@ -29,7 +29,7 @@
 
 class PairsTrading {
 	public:
-		PairsTrading(Stock * _s1, int EMA_id1, Stock * _s2, int EMA_id2, int i);
+		PairsTrading(Stock * _s1, int EMA_id1, Stock * _s2, int EMA_id2);
 		~PairsTrading();
 		int getState(); // not used
 		void doPairsTrading(double current_money, void *m_pclient);
@@ -59,15 +59,14 @@ class PairsTrading {
 			double percentChangeSinceDiv; // NO LONGER USED
 			
 			// for placing order
-			int idListBase;
-			int idListTop;
+			
 			double AmountBought; // IN SHARES. -ve means shorted
 			std::map<int, std::string> OrderType; 
 			std::map<int, double> OrderAmount; 
 		};
 
 	
-
+		
 		StockInfo s1Data, s2Data;
 
 		int state;

@@ -15,7 +15,7 @@ typedef enum {
 	INVALID
 } state;
 
-#define MIN_CROSSOVER_STRENGTH 0.0010 //this is how strong a crossover needs to be for us to respond to it
+#define MIN_CROSSOVER_STRENGTH 5 //this is how strong a crossover needs to be for us to respond to it
 
 class EMACrossover {
     public:
@@ -41,8 +41,6 @@ class EMACrossover {
 		bool placeOrder(Stock *stock, std::string order, std::string tick, double amount, void *m_pClient, int nextid);
 		std::ofstream emacFile;
 		double amountInvested;
-		int idListBase;
-		int idListTop;
 		std::map<int, std::string> OrderType; 
 		std::map<int, double> OrderAmount; 
 };
