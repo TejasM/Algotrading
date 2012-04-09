@@ -66,10 +66,10 @@ void Stock::newEMA(int num_periods, int id) {
 }
 
 
-void Stock::newMACD(int id) {
+void Stock::newMACD(int id, int slowPeriods, int fastPeriods, int signalPeriods) {
 
 	// Update the MACD map
-	MACD * newMACD= new MACD ();
+	MACD * newMACD= new MACD (slowPeriods, fastPeriods, signalPeriods);
 	MACDs[id] = newMACD;
 
 	// Update current MACD map

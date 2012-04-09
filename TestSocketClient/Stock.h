@@ -29,7 +29,7 @@ class Stock{
 			return shortable;
 		}
 		void newEMA(int num_periods, int id);
-		void newMACD(int id);
+		void newMACD(int id, int slowPeriods = 26, int fastPeriods = 12, int signalPeriods = 9);
 		void updateShortable( double value);
 		// see which ema and macd id it is and update it
 		// and write to file
