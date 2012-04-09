@@ -163,11 +163,15 @@ void PairsTrading::State3(double current_money,void *m_pclient) {
 	// the amount to invest this time step
 	divergedCount++;
 
+	s1Data.percentChangeSinceDiv = (s1Data.currentEMA - s1Data.EMAatDivergence) / 100;
+	s2Data.percentChangeSinceDiv = (s2Data.currentEMA - s2Data.EMAatDivergence) / 100;
+
 	// start buying/selling
 
 	// if stock 1 is falling, buy it
-	if (s1Data.currentEMA < s1Data.EMAatDivergence) {
+	if (s1Data.percentChange < s2Data.percentChange) {
 
+		// BUY STOCK 1, since we expect it to rise
 		double buyAmount = getInvestmentAmount ("buy",
 			s1Data.currentEMA - s1Data.EMAatDivergence,
 			divergedCount, current_money);
@@ -177,40 +181,8 @@ void PairsTrading::State3(double current_money,void *m_pclient) {
 		s1Data.OrderType[s1Data.idListTop] = "SELL";
 		s1Data.OrderAmount[s1Data.idListTop] = buyAmount;
 		s1Data.idListTop++;
-	}
-	else { // stock 1 is rising, sell (short) it
-		double sellAmount = getInvestmentAmount ("sell",
-			s1Data.currentEMA - s1Data.EMAatDivergence,
-			divergedCount, current_money
-			);
 
-		// placeOrder returns false if the stock is not shortable
-		if (s1->placeOrder("SELL", sellAmount, m_pclient, s1Data.idListTop, s1Data.AmountBought)) {
-			s1Data.OrderType[s1Data.idListTop] = "BUY";
-			s1Data.OrderAmount[s1Data.idListTop] = sellAmount;
-		}
-		else {
-			s1Data.OrderType[s1Data.idListTop] = "NONE";
-			s1Data.OrderAmount[s1Data.idListTop] = 0;
-		}
-		s1Data.idListTop++;
-	}
-
-	// if stock 2 is falling, buy it
-	if (s2Data.currentEMA < s2Data.EMAatDivergence) {
-		// part of Risk management module (separate class? inputs?)
-		// or we could make one risk management module for just this algorithm
-		double buyAmount = getInvestmentAmount ("buy",
-			s2Data.currentEMA - s2Data.EMAatDivergence,
-			divergedCount, current_money
-			);
-		s2->placeOrder("BUY", buyAmount, m_pclient, s2Data.idListTop, s2Data.AmountBought);
-
-		s2Data.OrderType[s2Data.idListTop] = "SELL";
-		s2Data.OrderAmount[s2Data.idListTop] = buyAmount;
-		s2Data.idListTop++;
-	}
-	else { // stock 2 is rising, sell it 
+		// SELL STOCK 2
 		double sellAmount = getInvestmentAmount ("sell",
 			s2Data.currentEMA - s2Data.EMAatDivergence,
 			divergedCount, current_money
@@ -226,6 +198,36 @@ void PairsTrading::State3(double current_money,void *m_pclient) {
 			s2Data.OrderAmount[s2Data.idListTop] = 0;
 		}
 		s2Data.idListTop++;
+	}
+	else {
+
+		// BUY STOCK 2
+		double buyAmount = getInvestmentAmount ("buy",
+			s2Data.currentEMA - s2Data.EMAatDivergence,
+			divergedCount, current_money
+			);
+		s2->placeOrder("BUY", buyAmount, m_pclient, s2Data.idListTop, s2Data.AmountBought);
+
+		s2Data.OrderType[s2Data.idListTop] = "SELL";
+		s2Data.OrderAmount[s2Data.idListTop] = buyAmount;
+		s2Data.idListTop++;
+
+		// SELL STOCK 1
+		double sellAmount = getInvestmentAmount ("sell",
+			s1Data.currentEMA - s1Data.EMAatDivergence,
+			divergedCount, current_money
+			);
+
+		// placeOrder returns false if the stock is not shortable
+		if (s1->placeOrder("SELL", sellAmount, m_pclient, s1Data.idListTop, s1Data.AmountBought)) {
+			s1Data.OrderType[s1Data.idListTop] = "BUY";
+			s1Data.OrderAmount[s1Data.idListTop] = sellAmount;
+		}
+		else {
+			s1Data.OrderType[s1Data.idListTop] = "NONE";
+			s1Data.OrderAmount[s1Data.idListTop] = 0;
+		}
+		s1Data.idListTop++;
 	}
 }
 
