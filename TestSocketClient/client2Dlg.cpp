@@ -121,6 +121,7 @@ CString getField( TickType tickType) {
 	default:                            return "unknown";
 	}
 }
+int i = 0;
 double money = 0;
 #define NUM_FA_ERROR_CODES 6
 static int faErrorCodes[NUM_FA_ERROR_CODES] =
@@ -1889,10 +1890,10 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 	char action[10];
 	char limitPrice[10];
 
-
 	Contract *newContract = new Contract();
 
 	PairsTrading *pairs;
+	EMACrossover *eman;
 	Stock *newStock2;
 	Contract *newContract2;
 	
@@ -1900,6 +1901,11 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 	switch (actionID)	{
 	case ID_AUTOEMA:
 		//TO DO
+		file.getline(id, 5, '\n');
+		file.getline(stock, 100, '\n');
+		file.getline(orderSize, 10, '\n');
+		contractDefine(newContract, id, stock,"SMART", "ISLAND", "USD", 0, false, "STK" );
+
 		break;
 	case ID_AUTOEMA2:
 		//TO DO
@@ -2079,8 +2085,8 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 		
 		contractDefine(newContract, id, stock,"SMART", "ISLAND", "USD", 0, false, "STK" );
 		contractDefine(newContract2, id2, stock2,"SMART", "ISLAND", "USD", 0, false, "STK" );
-		pairs = new PairsTrading(newStock, atoi(id), newStock2, atoi(id2));
-
+		pairs = new PairsTrading(newStock, atoi(id), newStock2, atoi(id2), i);
+		i++;
 		newStock->newEMA(5, atoi(id));
 		idToStock[atoi(id)] = newStock;
 		idToAction[atoi(id)] = actionID;
