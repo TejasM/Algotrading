@@ -8,7 +8,9 @@
 #include "EClientSocket.h" 
 //#include "winbase.h"
 
+//extern int idListTop =100000;
 // constructor
+int idListTop = 100000;
 Stock::Stock(std::string _tick) {
 
 	// initialize tick and times for EMA and MACD
@@ -96,11 +98,13 @@ bool Stock::placeOrder(std::string order, double amount,
 	if(order == "BUY") {
 		((EClient*) m_pClient)->placeOrder(idListTop, *newContract, *newOrder);
 		AmountBought += newOrder->totalQuantity;
+		idListTop++;
 	}
 	else if (order == "SELL") {
 		if(shortable || (AmountBought*curPrice >= amount)) {
 			((EClient*) m_pClient)->placeOrder(idListTop, *newContract, *newOrder);
 			AmountBought -= newOrder->totalQuantity;
+			idListTop++;
 		}
 		else return false;
 	}

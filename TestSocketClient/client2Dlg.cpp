@@ -34,6 +34,7 @@ std::map<Stock *, PairsTrading *> stockToPairs;
 std::map<CString, Stock *> tickToStock;
 std::map<int, Order *> idToOrder;
 std::map<int, EMACrossover *> idToCross1;
+std::map<int, int> orderidToGlobalId;
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -1895,7 +1896,7 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 	EMACrossover *eman;
 	Stock *newStock2;
 	Contract *newContract2;
-	
+	int orderid;
 	Order *newOrder;
 	switch (actionID)	{
 	case ID_AUTOEMA:
@@ -1920,18 +1921,20 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 	case ID_CANEMA:
 		file.getline(id, 5, '\n');
 		m_pClient->cancelRealTimeBars(atoi(id));
-		idToStock[atoi(id)] = NULL;
-		idToAction[atoi(id)] = '\0';
+		idToStock.erase(atoi(id));
+		idToAction.erase(atoi(id));
 		break;
 	case ID_CANMACD:
 		file.getline(id, 5, '\n');
 		m_pClient->cancelRealTimeBars(atoi(id));
-		idToStock[atoi(id)] = NULL;
-		idToAction[atoi(id)] = '\0';
+		idToStock.erase(atoi(id));
+		idToAction.erase(atoi(id));
 		break;
 	case ID_CANORDER:
 		file.getline(id, 5, '\n');
-		m_pClient->cancelOrder(atoi(id));
+		orderid = orderidToGlobalId[atoi(id)];
+		orderidToGlobalId.erase(atoi(id));
+		m_pClient->cancelOrder(orderid);
 		break;
 	case ID_CANPAIR:
 		file.getline(id, 5, '\n');
@@ -1939,8 +1942,8 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 	case ID_CANTICK:
 		file.getline(id, 5, '\n');
 		m_pClient->cancelRealTimeBars(atoi(id));
-		idToStock[atoi(id)] = NULL;
-		idToAction[atoi(id)] = '\0';
+		idToStock.erase(atoi(id));
+		idToAction.erase(atoi(id));
 		break;
 	case ID_CONNECT:
 		char ipAddr[50];
@@ -2059,7 +2062,11 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 		newOrder->lmtPrice = strtod(limitPrice, NULL);
 		newOrder->orderType = orderType;
 		idToOrder[atoi(id)] = newOrder;
-		m_pClient->placeOrder(atoi(id), *newContract, *newOrder);
+		
+		m_pClient->placeOrder(atoi(id)+idListTop, *newContract, *newOrder);
+		orderidToGlobalId[atoi(id)]= atoi(id)+idListTop;
+		idListTop++;
+
 		break;
 	case ID_CLRPOS:
 		break;

@@ -176,7 +176,7 @@ void PairsTrading::State3(double current_money,void *m_pclient) {
 
 		s1Data.OrderType[idListTop] = "SELL";
 		s1Data.OrderAmount[idListTop] = buyAmount;
-		idListTop++;
+		
 
 		// SELL STOCK 2
 		double sellAmount = getInvestmentAmount ("sell",
@@ -188,7 +188,7 @@ void PairsTrading::State3(double current_money,void *m_pclient) {
 		if (s2->placeOrder("SELL", sellAmount, m_pclient, s2Data.AmountBought)) {
 			s2Data.OrderType[idListTop] = "BUY";
 			s2Data.OrderAmount[idListTop] = sellAmount;
-			idListTop++;
+			
 		}
 		else {
 			s2Data.OrderType[idListTop] = "NONE";
@@ -207,7 +207,6 @@ void PairsTrading::State3(double current_money,void *m_pclient) {
 
 		s2Data.OrderType[idListTop] = "SELL";
 		s2Data.OrderAmount[idListTop] = buyAmount;
-		idListTop++;
 
 		// SELL STOCK 1
 		double sellAmount = getInvestmentAmount ("sell",
@@ -224,7 +223,6 @@ void PairsTrading::State3(double current_money,void *m_pclient) {
 			s1Data.OrderType[idListTop] = "NONE";
 			s1Data.OrderAmount[idListTop] = 0;
 		}
-		idListTop++;
 	}
 }
 
@@ -257,12 +255,10 @@ void PairsTrading::State4(void *m_pclient) {
 	std::string order;
 	if (s1Data.AmountBought > 0) order = "SELL";
 	else order = "BUY";
-	idListTop++;
 	s1->placeOrder(order, std::abs(s1Data.AmountBought), m_pclient, s1Data.AmountBought);
 
 	if (s2Data.AmountBought > 0) order = "SELL";
 	else order = "BUY";
-	idListTop++;
 	s2->placeOrder(order, std::abs(s2Data.AmountBought), m_pclient, s2Data.AmountBought);
 
 //	s1Data.AmountBought = 0;
