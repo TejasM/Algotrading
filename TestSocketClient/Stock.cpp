@@ -7,7 +7,7 @@
 #include "Contract.h"
 #include "EClientSocket.h" 
 //#include "winbase.h"
-
+int idListTop = 100000;
 // constructor
 Stock::Stock(std::string _tick) {
 

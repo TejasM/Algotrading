@@ -14,7 +14,7 @@
 
 // Strategy idea: Exponential Ribbon
 
-int idListTop = 100000;
+extern int idListTop;
 // Dummy stock class
 class Stock{
     public:
