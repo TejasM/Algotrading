@@ -2061,7 +2061,7 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 		newOrder->totalQuantity = atoi(orderSize);
 		newOrder->lmtPrice = strtod(limitPrice, NULL);
 		newOrder->orderType = orderType;
-		idToOrder[atoi(id)] = newOrder;
+		idToOrder[atoi(id)+idListTop] = newOrder;
 		
 		m_pClient->placeOrder(atoi(id)+idListTop, *newContract, *newOrder);
 		orderidToGlobalId[atoi(id)]= atoi(id)+idListTop;

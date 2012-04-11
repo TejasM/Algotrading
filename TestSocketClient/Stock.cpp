@@ -94,14 +94,17 @@ bool Stock::placeOrder(std::string order, double amount,
 	newOrder->orderId = idListTop;
 	newOrder->totalQuantity =(long) (amount)/curPrice;
 	newOrder->lmtPrice = curPrice;
-	newOrder->orderType = "LMT";
+	newOrder->orderType = "LIT";
+	//newOrder->tif = "IOC";
 	if(order == "BUY") {
+		newOrder->auxPrice = curPrice + 0.02;
 		((EClient*) m_pClient)->placeOrder(idListTop, *newContract, *newOrder);
 		AmountBought += newOrder->totalQuantity;
 		idListTop++;
 	}
 	else if (order == "SELL") {
 		if(shortable || (AmountBought*curPrice >= amount)) {
+			newOrder->auxPrice = curPrice - 0.02;
 			((EClient*) m_pClient)->placeOrder(idListTop, *newContract, *newOrder);
 			AmountBought -= newOrder->totalQuantity;
 			idListTop++;
