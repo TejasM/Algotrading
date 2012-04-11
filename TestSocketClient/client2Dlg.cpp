@@ -20,6 +20,7 @@
 #include "CommissionReport.h"
 #include "Input_Dialog.h"
 #include <fstream>
+#include <iostream>
 #include "winbase.h"
 #include "Stock.h"
 #include <map>
@@ -42,6 +43,7 @@ std::map<int, int> orderidToGlobalId;
 static char THIS_FILE[] = __FILE__;
 #endif
 
+bool openListTopFile = false;
 /////////////////////////////////////////////////////////////////////////////
 // consts
 const int TIMER = 0;
@@ -1889,7 +1891,7 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 	char orderSize[10];
 	char action[10];
 	char limitPrice[10];
-
+	std::ofstream ListTopFile("ListTop.txt");
 	Contract *newContract = new Contract();
 
 	PairsTrading *pairs;
@@ -2066,6 +2068,12 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 		m_pClient->placeOrder(atoi(id)+idListTop, *newContract, *newOrder);
 		orderidToGlobalId[atoi(id)]= atoi(id)+idListTop;
 		idListTop++;
+		
+		if (ListTopFile.is_open()) {
+			char temp [20];
+			itoa(idListTop, temp, 10);
+			ListTopFile << temp;
+		}
 
 		break;
 	case ID_CLRPOS:
@@ -2132,6 +2140,17 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 
 void CClient2Dlg::OnBnClickedButton1()
 {
+	if(!openListTopFile){
+		std::ifstream ListTopFile("ListTop.txt", std::ios::app);
+		if (ListTopFile.is_open()) {
+			char temp [20];
+			ListTopFile.getline(temp, 20);
+			if (strlen(temp) > 1) {
+				idListTop = atoi(temp) + 1;
+			}
+			openListTopFile = 1;
+		}
+	}
 	Input_Dialog dlg;
 	if( dlg.DoModal() == IDCANCEL) {
 		return;
