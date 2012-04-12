@@ -51,13 +51,13 @@ void EMACrossover::initCommon() {
 EMACrossover::~EMACrossover() {
 }
 
-state EMACrossover::getState() {
+int EMACrossover::getState() {
     return curState; 
 }
 
 void EMACrossover::doEMACrossoverWithStop(double current_money, void *m_pclient) {
 	
-	emacFile << "Curstate is " << states[getState()] << std::endl;
+	emacFile << "Curstate is " << states[curState] << std::endl;
 
 	//check if values are valid
 	if (!macd->isValid()) {
@@ -91,6 +91,8 @@ void EMACrossover::doEMACrossoverWithStop(double current_money, void *m_pclient)
 	//recall macd is fast - slow
 	if (macd->getMACD() > 0) {
 		if (curState == FAST_ABOVE_SLOW) {
+			prevFast = macd->getFast();
+			prevSlow = macd->getSlow();
 			return; //no news 
 		} else {
 			curState = WAITING_FOR_STOP;
@@ -100,6 +102,8 @@ void EMACrossover::doEMACrossoverWithStop(double current_money, void *m_pclient)
 		}
 	} else {
 		if (curState == FAST_BELOW_SLOW) {
+			prevFast = macd->getFast();
+			prevSlow = macd->getSlow();
 			return; //no news
 		} else {
 			curState = FAST_BELOW_SLOW;
@@ -108,12 +112,14 @@ void EMACrossover::doEMACrossoverWithStop(double current_money, void *m_pclient)
 			s->placeOrder("SELL", orderSize*(s->getPrice()), m_pclient, (double &) amountBought);
 		}
 	}
+		prevFast = macd->getFast();
+		prevSlow = macd->getSlow();
 }
 
 void EMACrossover::doEMACrossover(double current_money, void *m_pclient) {
 	//check if values are valid
 
-	emacFile << "Curstate is " << states[getState()] << std::endl;
+	emacFile << "Curstate is " << states[curState] << std::endl;
 
 	if (!macd->isValid()) {
 		return;
