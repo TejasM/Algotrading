@@ -12,8 +12,6 @@
 #include<vector>
 #include<map>
 
-// Strategy idea: Exponential Ribbon
-
 extern int idListTop;
 extern std::vector<int> orderIDs;
 // Dummy stock class

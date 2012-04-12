@@ -77,7 +77,7 @@ void EMACrossover::doEMACrossoverWithStop(double current_money, void *m_pclient)
 
 	if (curState == WAITING_FOR_STOP) {
 		if (curPrice > stopWin(macd->getFast(), d1)) {
-			emacFile << "STOP WIN: Selling order " << orderSize << " at price " << s->getPrice() <<std::endl;
+			emacFile << "STOP WIN: Selling order " << orderSize << " at price " << s->getPrice() << std::endl;
 			s->placeOrder("SELL", orderSize*(s->getPrice()), m_pclient, amountBought);
 			curState = macd->getMACD() > 0 ? FAST_ABOVE_SLOW : FAST_BELOW_SLOW;
 			return;

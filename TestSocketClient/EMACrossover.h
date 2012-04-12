@@ -24,7 +24,6 @@ class EMACrossover {
         int getState(); 
         void doEMACrossover(double current_money, void *m_pclient);
 		void doEMACrossoverWithStop(double current_money, void *m_pclient);
-		void emacontractDefine( void * newCon, int id, char * stock, char *exchange, char *primaryExchange, char *currency, double strike, bool includeExpired, char *secType );
     private:
 		void initCommon(); //for parts of constructor common to both stop / no stop
         Stock *s;
