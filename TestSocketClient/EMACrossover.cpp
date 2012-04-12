@@ -12,7 +12,7 @@
 #include "EClientSocket.h" 
 #include "Order.h"
 
-//getInvestment amount and placeOrder assumed. I don't see any way for me to get valid checks. 
+
 EMACrossover::EMACrossover(Stock *_s, int _macdID, int _orderSize) 
 	: s(_s), 
 	macd(s->getMACD(_macdID)), 
@@ -33,12 +33,16 @@ EMACrossover::EMACrossover(Stock *_s, int _macdID, int _orderSize, double _d1, d
 	initCommon();
 }
 
+const char* states[4] = {"WAITING_FOR_STOP",
+				  "FAST_ABOVE_SLOW",
+				  "FAST_BELOW_SLOW",
+				  "INVALID"};
 void EMACrossover::initCommon() {
 	// Create and write to files
 	std::string filename;
 	filename = s->getTick() + "_Crossover.txt";
 	emacFile.open(filename.c_str());
-	emacFile << "Current State is " << curState << std::endl;
+	emacFile << "Current State is " << states[curState] << std::endl;
 	prevFast = -1;
 	prevSlow = -1;
 	amountBought = 0;
@@ -52,6 +56,8 @@ state EMACrossover::getState() {
 }
 
 void EMACrossover::doEMACrossoverWithStop(double current_money, void *m_pclient) {
+	
+	emacFile << "Curstate is " << states[getState()] << std::endl;
 
 	//check if values are valid
 	if (!macd->isValid()) {
@@ -64,10 +70,11 @@ void EMACrossover::doEMACrossoverWithStop(double current_money, void *m_pclient)
 	//init. can't do in constructor b/c no macd valid
 	if (curState == INVALID) {
 		curState = macd->getMACD() > 0 ? FAST_ABOVE_SLOW : FAST_BELOW_SLOW;
+		prevFast = macd->getFast();
+		prevSlow = macd->getSlow();
 		return;
 	}
 
-	//I need some way to signal to Tejas that I am finished, don't I?
 	if (curState == WAITING_FOR_STOP) {
 		if (curPrice > stopWin(macd->getFast(), d1)) {
 			emacFile << "STOP WIN: Selling order " << orderSize << " at price " << s->getPrice() <<std::endl;
@@ -75,7 +82,7 @@ void EMACrossover::doEMACrossoverWithStop(double current_money, void *m_pclient)
 			return;
 		} else if (curPrice < stopLoss(macd->getSlow(), d2)) {
 			emacFile << "STOP LOSS: Selling order " << orderSize << " at price " << s->getPrice() <<std::endl;
-			s->placeOrder("BUY", orderSize*(s->getPrice()), m_pclient, (double &) amountBought);
+			s->placeOrder("SELL", orderSize*(s->getPrice()), m_pclient, (double &) amountBought);
 			return;
 		}
 		return;
@@ -106,7 +113,7 @@ void EMACrossover::doEMACrossoverWithStop(double current_money, void *m_pclient)
 void EMACrossover::doEMACrossover(double current_money, void *m_pclient) {
 	//check if values are valid
 
-	emacFile << "Curstate is " << getState() << std::endl;
+	emacFile << "Curstate is " << states[getState()] << std::endl;
 
 	if (!macd->isValid()) {
 		return;
@@ -135,6 +142,7 @@ void EMACrossover::doEMACrossover(double current_money, void *m_pclient) {
 			if (degrees > MIN_CROSSOVER_STRENGTH) {
 				s->placeOrder("BUY", orderSize*(s->getPrice()), m_pclient, (double &) amountBought);
 				emacFile << "Buying order " << orderSize << " at price " << s->getPrice() << std::endl;
+				idListTop++;
 			}
 		}
 	} else {
@@ -147,7 +155,6 @@ void EMACrossover::doEMACrossover(double current_money, void *m_pclient) {
 			emacFile << "Strength of crossover is " << degrees << std::endl;
 			//time to sell or short if we can!
 			//Questions: what does the project sheet and the times 2 mean? 
-			//What if I want to actually sell, and not short
 			if (degrees > MIN_CROSSOVER_STRENGTH) { 
 				s->placeOrder("SELL", orderSize*(s->getPrice()), m_pclient, (double &) amountBought);
 				emacFile << "Selling order " << orderSize << " at price " << s->getPrice() << std::endl;
@@ -181,15 +188,3 @@ double EMACrossover::stopLoss(double slow, double d2)  {
 	return slow - d2;
 }
 
-void EMACrossover::emacontractDefine( void * newCon, int id, char * stock, char *exchange, char *primaryExchange, char *currency, double strike, bool includeExpired, char *secType ) 
-{
-	Contract *newContract = (Contract *) newCon;
-	newContract->conId = id;
-	newContract->symbol = stock;
-	newContract->exchange = exchange;
-	newContract->primaryExchange = primaryExchange;
-	newContract->currency = currency;
-	newContract->strike = strike;
-	newContract->includeExpired = includeExpired;
-	newContract->secType = secType;
-}

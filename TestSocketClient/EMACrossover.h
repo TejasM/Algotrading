@@ -31,14 +31,13 @@ class EMACrossover {
         Stock *s;
 		long orderSize;
 		MACD *macd; 
-		long amountBought;
+		long amountBought; //amount of stock you currently hold
         state curState;
 		double stopWin(double fast, double d1);
 		double stopLoss(double slow, double d2);
 		double d1, d2;
 		double prevFast, prevSlow;
 		double riskManagement();
-		bool placeOrder(Stock *stock, std::string order, std::string tick, double amount, void *m_pClient, int nextid);
 		std::ofstream emacFile;
 		double amountInvested;
 		std::map<int, std::string> OrderType; 
