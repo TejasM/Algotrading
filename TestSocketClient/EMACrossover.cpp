@@ -42,7 +42,7 @@ void EMACrossover::initCommon() {
 	std::string filename;
 	filename = s->getTick() + "_Crossover.txt";
 	emacFile.open(filename.c_str());
-	emacFile << "Current State is " << states[curState] << std::endl;
+	emacFile << "Current State is " << curState << std::endl;
 	prevFast = -1;
 	prevSlow = -1;
 	amountBought = 0;
@@ -57,7 +57,7 @@ int EMACrossover::getState() {
 
 void EMACrossover::doEMACrossoverWithStop(double current_money, void *m_pclient) {
 	
-	emacFile << "Curstate is " << states[curState] << std::endl;
+	emacFile << "Curstate is " << curState << std::endl;
 
 	//check if values are valid
 	if (!macd->isValid()) {
@@ -78,11 +78,13 @@ void EMACrossover::doEMACrossoverWithStop(double current_money, void *m_pclient)
 	if (curState == WAITING_FOR_STOP) {
 		if (curPrice > stopWin(macd->getFast(), d1)) {
 			emacFile << "STOP WIN: Selling order " << orderSize << " at price " << s->getPrice() <<std::endl;
-			s->placeOrder("SELL", orderSize*(s->getPrice()), m_pclient, (double &) amountBought);
+			s->placeOrder("SELL", orderSize*(s->getPrice()), m_pclient, amountBought);
+			curState = macd->getMACD() > 0 ? FAST_ABOVE_SLOW : FAST_BELOW_SLOW;
 			return;
 		} else if (curPrice < stopLoss(macd->getSlow(), d2)) {
 			emacFile << "STOP LOSS: Selling order " << orderSize << " at price " << s->getPrice() <<std::endl;
-			s->placeOrder("SELL", orderSize*(s->getPrice()), m_pclient, (double &) amountBought);
+			s->placeOrder("SELL", orderSize*(s->getPrice()), m_pclient,  amountBought);
+			curState = macd->getMACD() > 0 ? FAST_ABOVE_SLOW : FAST_BELOW_SLOW;
 			return;
 		}
 		return;
@@ -98,7 +100,8 @@ void EMACrossover::doEMACrossoverWithStop(double current_money, void *m_pclient)
 			curState = WAITING_FOR_STOP;
 			emacFile << "Strength of crossover is " << degrees << std::endl;
 			//time to buy!
-			s->placeOrder("BUY", orderSize*(s->getPrice()), m_pclient, (double &) amountBought);
+			s->placeOrder("BUY", orderSize*(s->getPrice()), m_pclient, amountBought);
+			curState = WAITING_FOR_STOP;
 		}
 	} else {
 		if (curState == FAST_BELOW_SLOW) {
@@ -109,7 +112,8 @@ void EMACrossover::doEMACrossoverWithStop(double current_money, void *m_pclient)
 			curState = FAST_BELOW_SLOW;
 			emacFile << "Strength of crossover is " << degrees << std::endl;
 			//time to sell
-			s->placeOrder("SELL", orderSize*(s->getPrice()), m_pclient, (double &) amountBought);
+			s->placeOrder("SELL", orderSize*(s->getPrice()), m_pclient, amountBought);
+			curState = FAST_BELOW_SLOW;
 		}
 	}
 		prevFast = macd->getFast();
@@ -119,7 +123,7 @@ void EMACrossover::doEMACrossoverWithStop(double current_money, void *m_pclient)
 void EMACrossover::doEMACrossover(double current_money, void *m_pclient) {
 	//check if values are valid
 
-	emacFile << "Curstate is " << states[curState] << std::endl;
+	emacFile << "Curstate is " << curState << std::endl;
 
 	if (!macd->isValid()) {
 		return;
@@ -146,9 +150,10 @@ void EMACrossover::doEMACrossover(double current_money, void *m_pclient) {
 			emacFile << "Strength of crossover is " << degrees << std::endl;
 			//time to buy!
 			if (degrees > MIN_CROSSOVER_STRENGTH) {
-				s->placeOrder("BUY", orderSize*(s->getPrice()), m_pclient, (double &) amountBought);
+				s->placeOrder("BUY", orderSize*(s->getPrice()), m_pclient, amountBought);
 				emacFile << "Buying order " << orderSize << " at price " << s->getPrice() << std::endl;
 			}
+			curState = FAST_ABOVE_SLOW;
 		}
 	} else {
 		if (curState == FAST_BELOW_SLOW) {
@@ -160,9 +165,10 @@ void EMACrossover::doEMACrossover(double current_money, void *m_pclient) {
 			emacFile << "Strength of crossover is " << degrees << std::endl;
 			//time to sell or short if we can!
 			if (degrees > MIN_CROSSOVER_STRENGTH) { 
-				s->placeOrder("SELL", orderSize*(s->getPrice()), m_pclient, (double &) amountBought);
+				s->placeOrder("SELL", orderSize*(s->getPrice()), m_pclient,  amountBought);
 				emacFile << "Selling order " << orderSize << " at price " << s->getPrice() << std::endl;
 			}
+			curState = FAST_BELOW_SLOW;
 		}
 	}
 	prevFast = macd->getFast();

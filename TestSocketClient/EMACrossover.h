@@ -30,7 +30,7 @@ class EMACrossover {
         Stock *s;
 		long orderSize;
 		MACD *macd; 
-		long amountBought; //amount of stock you currently hold
+		double amountBought; //amount of stock you currently hold
         int curState;
 		double stopWin(double fast, double d1);
 		double stopLoss(double slow, double d2);

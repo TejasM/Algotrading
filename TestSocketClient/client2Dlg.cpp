@@ -2116,16 +2116,115 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 
 		break;
 	case ID_CLRPOS:
+		for(int i = 0; i < orderIDs.size(); i++){
+			m_pClient->cancelOrder(orderIDs[i]);
+		}
+		orderIDs.clear();
 		break;
 	case ID_PAIR:
-
-		//Currently setup to get from user the pairs, easy to change to 3 or so of our own pairs.
+		//Grabs 3 Pairs.
 		file.getline(id, 5, '\n');
 		file.getline(stock, 100, '\n');
 
 
 		char id2[5];
 		char stock2[100];
+		file.getline(id2, 5, '\n');
+		file.getline(stock2, 100, '\n');
+
+		newContract2 = new Contract();
+		if(tickToStock.find(stock) != tickToStock.end()){
+			newStock = tickToStock[stock];
+		}else{
+			/*sprintf(text, "New Stock Created: Tick: %s", stock);
+			MessageBox(text);*/
+			newStock = new Stock(stock);
+		}
+		
+		if(tickToStock.find(stock2) != tickToStock.end()){
+			newStock2 = tickToStock[stock2];
+		}else{
+			newStock2 = new Stock(stock2);
+		}
+		
+		contractDefine(newContract, id, stock,"SMART", "ISLAND", "USD", 0, false, "STK" );
+		contractDefine(newContract2, id2, stock2,"SMART", "ISLAND", "USD", 0, false, "STK" );
+		pairs = new PairsTrading(newStock, atoi(id), newStock2, atoi(id2));
+		i++;
+		newStock->newEMA(5, atoi(id));
+		idToStock[atoi(id)] = newStock;
+		idToAction[atoi(id)] = actionID;
+		tickToStock[stock] = newStock;
+		stockToPairs[newStock] = pairs;
+
+		newStock2->newEMA(5, atoi(id2));
+		idToStock[atoi(id2)] = newStock2;
+		idToAction[atoi(id2)] = actionID;
+		tickToStock[stock] = newStock2;
+		stockToPairs[newStock2] = pairs;
+		m_pClient->reqAccountUpdates(true,"Nothing");
+
+		m_pClient->reqMktData( atoi(id), *newContract,
+		_T("236"), false);
+		m_pClient->reqMktData( atoi(id2), *newContract,
+			_T("236"), false);
+		m_pClient->reqRealTimeBars( atoi(id), *newContract,
+			5 /* TODO: parse and use m_dlgOrder->m_barSizeSetting) */,
+			"TRADES", true);
+		m_pClient->reqRealTimeBars( atoi(id2), *newContract2,
+			5 /* TODO: parse and use m_dlgOrder->m_barSizeSetting) */,
+			"TRADES", true);
+		file.getline(id, 5, '\n');
+		file.getline(stock, 100, '\n');
+
+		file.getline(id2, 5, '\n');
+		file.getline(stock2, 100, '\n');
+
+		newContract2 = new Contract();
+		if(tickToStock.find(stock) != tickToStock.end()){
+			newStock = tickToStock[stock];
+		}else{
+			/*sprintf(text, "New Stock Created: Tick: %s", stock);
+			MessageBox(text);*/
+			newStock = new Stock(stock);
+		}
+		
+		if(tickToStock.find(stock2) != tickToStock.end()){
+			newStock2 = tickToStock[stock2];
+		}else{
+			newStock2 = new Stock(stock2);
+		}
+		
+		contractDefine(newContract, id, stock,"SMART", "ISLAND", "USD", 0, false, "STK" );
+		contractDefine(newContract2, id2, stock2,"SMART", "ISLAND", "USD", 0, false, "STK" );
+		pairs = new PairsTrading(newStock, atoi(id), newStock2, atoi(id2));
+		i++;
+		newStock->newEMA(5, atoi(id));
+		idToStock[atoi(id)] = newStock;
+		idToAction[atoi(id)] = actionID;
+		tickToStock[stock] = newStock;
+		stockToPairs[newStock] = pairs;
+
+		newStock2->newEMA(5, atoi(id2));
+		idToStock[atoi(id2)] = newStock2;
+		idToAction[atoi(id2)] = actionID;
+		tickToStock[stock] = newStock2;
+		stockToPairs[newStock2] = pairs;
+		m_pClient->reqAccountUpdates(true,"Nothing");
+
+		m_pClient->reqMktData( atoi(id), *newContract,
+		_T("236"), false);
+		m_pClient->reqMktData( atoi(id2), *newContract,
+			_T("236"), false);
+		m_pClient->reqRealTimeBars( atoi(id), *newContract,
+			5 /* TODO: parse and use m_dlgOrder->m_barSizeSetting) */,
+			"TRADES", true);
+		m_pClient->reqRealTimeBars( atoi(id2), *newContract2,
+			5 /* TODO: parse and use m_dlgOrder->m_barSizeSetting) */,
+			"TRADES", true);
+		file.getline(id, 5, '\n');
+		file.getline(stock, 100, '\n');
+
 		file.getline(id2, 5, '\n');
 		file.getline(stock2, 100, '\n');
 
