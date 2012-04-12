@@ -932,6 +932,22 @@ void CClient2Dlg::doWork(TickerId tickerId, double price){
 		
 		break;
 	case ID_AUTOEMA2:
+		newStock = idToStock[tickerId];
+		newStock->update(tickerId, price);
+		//m_pClient->reqAccountUpdates(true,"Nothing");
+		if (money == 0) {
+			break;
+		}
+
+		emac = idToCross1[tickerId];
+		///*sprintf(text, "Money: %f", money);
+		//MessageBox(text);*/
+		emac->doEMACrossoverWithStop(money, m_pClient);
+
+		money = 0;
+		m_pClient->reqAccountUpdates(true,"Nothing");
+		
+		break;
 		break;
 	case ID_REQBAR:
 		newStock = idToStock[tickerId];
@@ -1900,6 +1916,8 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 	Contract *newContract2;
 	int orderid;
 	Order *newOrder;
+	char d1[10];
+	char d2[10];
 	switch (actionID)	{
 	case ID_AUTOEMA:
 		file.getline(id, 5, '\n');
@@ -1918,6 +1936,22 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 		m_pClient->reqAccountUpdates(true,"Nothing");
 		break;
 	case ID_AUTOEMA2:
+		file.getline(id, 5, '\n');
+		file.getline(stock, 100, '\n');
+		file.getline(orderSize, 10, '\n');
+		file.getline(d1, 10, '\n');
+		file.getline(d2, 10, '\n');
+		contractDefine(newContract, id, stock,"SMART", "ISLAND", "USD", 0, false, "STK" );
+		newStock = new Stock(stock);
+		newStock->newMACD(atoi(id), 26, 12, 9);
+		eman = new EMACrossover(newStock, atoi(id), atoi(orderSize), atoi(d1), atoi(d2));
+		idToCross1[atoi(id)] = eman;
+		idToStock[atoi(id)] = newStock;
+		idToAction[atoi(id)] = actionID;
+		m_pClient->reqRealTimeBars( atoi(id), *newContract,
+			5 /* TODO: parse and use m_dlgOrder->m_barSizeSetting) */,
+			"TRADES", true);
+		m_pClient->reqAccountUpdates(true,"Nothing");
 		//TO DO
 		break;
 	case ID_CANEMA:
