@@ -11,6 +11,7 @@
 //extern int idListTop =100000;
 // constructor
 int idListTop = 100000;
+std::vector<int> orderIDs;
 Stock::Stock(std::string _tick) {
 
 	// initialize tick and times for EMA and MACD
@@ -99,6 +100,7 @@ bool Stock::placeOrder(std::string order, double amount,
 		newOrder->lmtPrice = curPrice + 0.02;
 		((EClient*) m_pClient)->placeOrder(idListTop, *newContract, *newOrder);
 		AmountBought += newOrder->totalQuantity;
+		orderIDs.push_back(idListTop);
 		idListTop++;
 	}
 	else if (order == "SELL") {
@@ -106,6 +108,7 @@ bool Stock::placeOrder(std::string order, double amount,
 			newOrder->lmtPrice = curPrice - 0.02;
 			((EClient*) m_pClient)->placeOrder(idListTop, *newContract, *newOrder);
 			AmountBought -= newOrder->totalQuantity;
+			orderIDs.push_back(idListTop);
 			idListTop++;
 		}
 		else return false;

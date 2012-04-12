@@ -142,7 +142,6 @@ void EMACrossover::doEMACrossover(double current_money, void *m_pclient) {
 			if (degrees > MIN_CROSSOVER_STRENGTH) {
 				s->placeOrder("BUY", orderSize*(s->getPrice()), m_pclient, (double &) amountBought);
 				emacFile << "Buying order " << orderSize << " at price " << s->getPrice() << std::endl;
-				idListTop++;
 			}
 		}
 	} else {
@@ -154,7 +153,6 @@ void EMACrossover::doEMACrossover(double current_money, void *m_pclient) {
 			curState = FAST_BELOW_SLOW;
 			emacFile << "Strength of crossover is " << degrees << std::endl;
 			//time to sell or short if we can!
-			//Questions: what does the project sheet and the times 2 mean? 
 			if (degrees > MIN_CROSSOVER_STRENGTH) { 
 				s->placeOrder("SELL", orderSize*(s->getPrice()), m_pclient, (double &) amountBought);
 				emacFile << "Selling order " << orderSize << " at price " << s->getPrice() << std::endl;
