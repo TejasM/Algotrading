@@ -15,6 +15,7 @@
 // Strategy idea: Exponential Ribbon
 
 extern int idListTop;
+extern std::vector<int> orderIDs;
 // Dummy stock class
 class Stock{
     public:

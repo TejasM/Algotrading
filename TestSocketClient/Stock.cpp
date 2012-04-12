@@ -7,8 +7,10 @@
 #include "Contract.h"
 #include "EClientSocket.h" 
 //#include "winbase.h"
-int idListTop = 100000;
+
 // constructor
+int idListTop = 100000;
+std::vector<int> orderIDs;
 Stock::Stock(std::string _tick) {
 
 	// initialize tick and times for EMA and MACD
@@ -82,7 +84,6 @@ void contractDefine( Contract * newContract, int id, const char * stock, char *e
 bool Stock::placeOrder(std::string order, double amount, 
 		void *m_pClient, double & AmountBought) {
 
-
 	Order *newOrder = new Order();
 	Contract *newContract = new Contract();
 	
@@ -93,17 +94,32 @@ bool Stock::placeOrder(std::string order, double amount,
 	newOrder->totalQuantity =(long) (amount)/curPrice;
 	newOrder->lmtPrice = curPrice;
 	newOrder->orderType = "LMT";
+	//newOrder->tif = "IOC";
 	if(order == "BUY") {
+		newOrder->lmtPrice = curPrice + 0.02;
 		((EClient*) m_pClient)->placeOrder(idListTop, *newContract, *newOrder);
 		AmountBought += newOrder->totalQuantity;
+		orderIDs.push_back(idListTop);
+		idListTop++;
 	}
 	else if (order == "SELL") {
 		if(shortable || (AmountBought*curPrice >= amount)) {
+			newOrder->lmtPrice = curPrice - 0.02;
 			((EClient*) m_pClient)->placeOrder(idListTop, *newContract, *newOrder);
 			AmountBought -= newOrder->totalQuantity;
+			orderIDs.push_back(idListTop);
+			idListTop++;
 		}
 		else return false;
 	}
+
+	std::ofstream ListTopFile("ListTop.txt");
+	if (ListTopFile.is_open()) {
+		char temp [20];
+		itoa(idListTop, temp, 10);
+		ListTopFile << temp;
+	}
+
 	return true;
 }
 	

@@ -12,7 +12,7 @@
 #include "EClientSocket.h" 
 #include "Order.h"
 
-//getInvestment amount and placeOrder assumed. I don't see any way for me to get valid checks. 
+
 EMACrossover::EMACrossover(Stock *_s, int _macdID, int _orderSize) 
 	: s(_s), 
 	macd(s->getMACD(_macdID)), 
@@ -33,6 +33,10 @@ EMACrossover::EMACrossover(Stock *_s, int _macdID, int _orderSize, double _d1, d
 	initCommon();
 }
 
+const char* states[4] = {"WAITING_FOR_STOP",
+				  "FAST_ABOVE_SLOW",
+				  "FAST_BELOW_SLOW",
+				  "INVALID"};
 void EMACrossover::initCommon() {
 	// Create and write to files
 	std::string filename;
@@ -47,11 +51,13 @@ void EMACrossover::initCommon() {
 EMACrossover::~EMACrossover() {
 }
 
-state EMACrossover::getState() {
+int EMACrossover::getState() {
     return curState; 
 }
 
 void EMACrossover::doEMACrossoverWithStop(double current_money, void *m_pclient) {
+	
+	emacFile << "Curstate is " << curState << std::endl;
 
 	//check if values are valid
 	if (!macd->isValid()) {
@@ -64,18 +70,21 @@ void EMACrossover::doEMACrossoverWithStop(double current_money, void *m_pclient)
 	//init. can't do in constructor b/c no macd valid
 	if (curState == INVALID) {
 		curState = macd->getMACD() > 0 ? FAST_ABOVE_SLOW : FAST_BELOW_SLOW;
+		prevFast = macd->getFast();
+		prevSlow = macd->getSlow();
 		return;
 	}
 
-	//I need some way to signal to Tejas that I am finished, don't I?
 	if (curState == WAITING_FOR_STOP) {
 		if (curPrice > stopWin(macd->getFast(), d1)) {
 			emacFile << "STOP WIN: Selling order " << orderSize << " at price " << s->getPrice() <<std::endl;
-			s->placeOrder("SELL", orderSize*(s->getPrice()), m_pclient, (double &) amountBought);
+			s->placeOrder("SELL", orderSize*(s->getPrice()), m_pclient, amountBought);
+			curState = macd->getMACD() > 0 ? FAST_ABOVE_SLOW : FAST_BELOW_SLOW;
 			return;
 		} else if (curPrice < stopLoss(macd->getSlow(), d2)) {
 			emacFile << "STOP LOSS: Selling order " << orderSize << " at price " << s->getPrice() <<std::endl;
-			s->placeOrder("BUY", orderSize*(s->getPrice()), m_pclient, (double &) amountBought);
+			s->placeOrder("SELL", orderSize*(s->getPrice()), m_pclient,  amountBought);
+			curState = macd->getMACD() > 0 ? FAST_ABOVE_SLOW : FAST_BELOW_SLOW;
 			return;
 		}
 		return;
@@ -84,29 +93,37 @@ void EMACrossover::doEMACrossoverWithStop(double current_money, void *m_pclient)
 	//recall macd is fast - slow
 	if (macd->getMACD() > 0) {
 		if (curState == FAST_ABOVE_SLOW) {
+			prevFast = macd->getFast();
+			prevSlow = macd->getSlow();
 			return; //no news 
 		} else {
 			curState = WAITING_FOR_STOP;
 			emacFile << "Strength of crossover is " << degrees << std::endl;
 			//time to buy!
-			s->placeOrder("BUY", orderSize*(s->getPrice()), m_pclient, (double &) amountBought);
+			s->placeOrder("BUY", orderSize*(s->getPrice()), m_pclient, amountBought);
+			curState = WAITING_FOR_STOP;
 		}
 	} else {
 		if (curState == FAST_BELOW_SLOW) {
+			prevFast = macd->getFast();
+			prevSlow = macd->getSlow();
 			return; //no news
 		} else {
 			curState = FAST_BELOW_SLOW;
 			emacFile << "Strength of crossover is " << degrees << std::endl;
 			//time to sell
-			s->placeOrder("SELL", orderSize*(s->getPrice()), m_pclient, (double &) amountBought);
+			s->placeOrder("SELL", orderSize*(s->getPrice()), m_pclient, amountBought);
+			curState = FAST_BELOW_SLOW;
 		}
 	}
+		prevFast = macd->getFast();
+		prevSlow = macd->getSlow();
 }
 
 void EMACrossover::doEMACrossover(double current_money, void *m_pclient) {
 	//check if values are valid
 
-	emacFile << "Curstate is " << getState() << std::endl;
+	emacFile << "Curstate is " << curState << std::endl;
 
 	if (!macd->isValid()) {
 		return;
@@ -133,10 +150,10 @@ void EMACrossover::doEMACrossover(double current_money, void *m_pclient) {
 			emacFile << "Strength of crossover is " << degrees << std::endl;
 			//time to buy!
 			if (degrees > MIN_CROSSOVER_STRENGTH) {
-				s->placeOrder("BUY", orderSize*(s->getPrice()), m_pclient, (double &) amountBought);
+				s->placeOrder("BUY", orderSize*(s->getPrice()), m_pclient, amountBought);
 				emacFile << "Buying order " << orderSize << " at price " << s->getPrice() << std::endl;
-				idListTop++;
 			}
+			curState = FAST_ABOVE_SLOW;
 		}
 	} else {
 		if (curState == FAST_BELOW_SLOW) {
@@ -147,13 +164,11 @@ void EMACrossover::doEMACrossover(double current_money, void *m_pclient) {
 			curState = FAST_BELOW_SLOW;
 			emacFile << "Strength of crossover is " << degrees << std::endl;
 			//time to sell or short if we can!
-			//Questions: what does the project sheet and the times 2 mean? 
-			//What if I want to actually sell, and not short
 			if (degrees > MIN_CROSSOVER_STRENGTH) { 
-				s->placeOrder("SELL", orderSize*(s->getPrice()), m_pclient, (double &) amountBought);
+				s->placeOrder("SELL", orderSize*(s->getPrice()), m_pclient,  amountBought);
 				emacFile << "Selling order " << orderSize << " at price " << s->getPrice() << std::endl;
-				idListTop++;
 			}
+			curState = FAST_BELOW_SLOW;
 		}
 	}
 	prevFast = macd->getFast();
@@ -183,15 +198,3 @@ double EMACrossover::stopLoss(double slow, double d2)  {
 	return slow - d2;
 }
 
-void EMACrossover::emacontractDefine( void * newCon, int id, char * stock, char *exchange, char *primaryExchange, char *currency, double strike, bool includeExpired, char *secType ) 
-{
-	Contract *newContract = (Contract *) newCon;
-	newContract->conId = id;
-	newContract->symbol = stock;
-	newContract->exchange = exchange;
-	newContract->primaryExchange = primaryExchange;
-	newContract->currency = currency;
-	newContract->strike = strike;
-	newContract->includeExpired = includeExpired;
-	newContract->secType = secType;
-}
