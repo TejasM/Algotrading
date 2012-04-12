@@ -255,11 +255,11 @@ void PairsTrading::State4(void *m_pclient) {
 	std::string order;
 	if (s1Data.AmountBought > 0) order = "SELL";
 	else order = "BUY";
-	s1->placeOrder(order, std::abs(s1Data.AmountBought), m_pclient, s1Data.AmountBought);
+	s1->placeOrder(order, std::abs(s1Data.AmountBought)*s1->getPrice(), m_pclient, s1Data.AmountBought);
 
 	if (s2Data.AmountBought > 0) order = "SELL";
 	else order = "BUY";
-	s2->placeOrder(order, std::abs(s2Data.AmountBought), m_pclient, s2Data.AmountBought);
+	s2->placeOrder(order, std::abs(s2Data.AmountBought)*s2->getPrice(), m_pclient, s2Data.AmountBought);
 
 //	s1Data.AmountBought = 0;
 //	s2Data.AmountBought = 0;
