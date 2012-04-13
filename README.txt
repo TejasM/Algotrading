@@ -6,6 +6,7 @@
 ---------------------------------------------------------------------
 
 This is the documentation for the Pairs Trading Algorithm Implementation.
+See also DesignDocument.pdf
 
 Group 04
 Tejas Mehta         997486581
