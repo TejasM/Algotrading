@@ -33,7 +33,7 @@ AlgoTrading.vcxproj
 ./TestSocketClient
 - The source code for the project
 
-./Sample Inputs
+./Examples
 - Contains example input input files for PairsTrading and EMA, MACD.
 
 
@@ -51,7 +51,7 @@ Steps to use the GUI
 IMPORTANT NOTE: This path must be an absolute directory, e.g.:
 
 
-        C:\ECE358\Algotrading\Sample Input\pair.txt
+        C:\ECE358\Algotrading\Examples\pair.txt
 
 
 5. See DesignDocument.pdf for information on action codes and input,
