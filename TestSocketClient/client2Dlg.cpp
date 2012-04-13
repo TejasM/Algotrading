@@ -1997,6 +1997,20 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 		idToAction.erase(atoi(id) + 1);
 		stockToPairs.erase(newStock);
 		idToCross1.erase(atoi(id));
+		file.getline(id, 5, '\n');
+		newStock = idToStock[atoi(id)];
+		idToStock.erase(atoi(id));
+		idToAction.erase(atoi(id));
+		idToAction.erase(atoi(id) + 1);
+		stockToPairs.erase(newStock);
+		idToCross1.erase(atoi(id));
+		file.getline(id, 5, '\n');
+		newStock = idToStock[atoi(id)];
+		idToStock.erase(atoi(id));
+		idToAction.erase(atoi(id));
+		idToAction.erase(atoi(id) + 1);
+		stockToPairs.erase(newStock);
+		idToCross1.erase(atoi(id));
 		break;
 	case ID_CANTICK:
 		file.getline(id, 5, '\n');
