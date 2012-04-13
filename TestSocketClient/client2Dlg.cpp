@@ -1910,8 +1910,8 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 	if(filePath){
 		file.open(filePath);
 		if(!(file.is_open())) {
-			sprintf(text, "Couldn't open file\n");
-			MessageBox(text);
+			/*sprintf(text, "Couldn't open file\n");*/
+			/*MessageBox(text);*/
 			return;
 		}	
 	}
@@ -1996,7 +1996,7 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 		idToAction.erase(atoi(id));
 		idToAction.erase(atoi(id) + 1);
 		stockToPairs.erase(newStock);
-		idToCross1.erase(newStock);
+		idToCross1.erase(atoi(id));
 		break;
 	case ID_CANTICK:
 		file.getline(id, 5, '\n');
@@ -2031,26 +2031,26 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 		file.getline(id, 5, '\n');
 		file.getline(stock, 100, '\n');
 		file.getline(barSize, 2, '\n');
-		sprintf(text, "1: The inputs are: ID: %d, StockId: %s, barsize: %d", atoi(id), stock, atoi(barSize));
-		MessageBox(text);
+		/*sprintf(text, "1: The inputs are: ID: %d, StockId: %s, barsize: %d", atoi(id), stock, atoi(barSize));*/
+		/*MessageBox(text);*/
 		contractDefine(newContract, id, stock,"SMART", "ISLAND", "USD", 0, false, "STK" );
 		if(tickToStock.find(stock) != tickToStock.end()){
 			newStock = tickToStock[stock];
 
 		}else{
-			sprintf(text, "New Stock Created: Tick: %s", stock);
-			MessageBox(text);
+			/*sprintf(text, "New Stock Created: Tick: %s", stock);*/
+			/*MessageBox(text);*/
 			std::string hack = stock;
 			newStock = new Stock(hack);
 		}
 		idToStock[atoi(id)] = newStock;
 		idToBarsize[atoi(id)] = atoi(barSize);
 		idToBarcount[atoi(id)] = 0;
-		sprintf(text, "New Stack ID: %s", idToStock[atoi(id)]->getTick().c_str());
-		MessageBox(text);
+		/*sprintf(text, "New Stack ID: %s", idToStock[atoi(id)]->getTick().c_str());*/
+		/*MessageBox(text);*/
 		idToAction[atoi(id)] = actionID;
-		sprintf(text, "New Stack ID: %d", idToAction[atoi(id)]);
-		MessageBox(text);
+		/*sprintf(text, "New Stack ID: %d", idToAction[atoi(id)]);*/
+		/*MessageBox(text);*/
 		tickToStock[stock] = newStock;
 		m_pClient->reqRealTimeBars( atoi(id), *newContract,
 			5 /* TODO: parse and use m_dlgOrder->m_barSizeSetting) */,
@@ -2103,8 +2103,8 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 		//CString m_genericTicks = _T("100,101,104,105,106,107,165,221,225,233,236,258,293,294,295,318");
 		file.getline(id, 5, '\n');
 		file.getline(stock, 100, '\n');
-		sprintf(text, "1: The inputs are: ID: %d, StockId: %s, BOOL: %d", atoi(id), stock, (int)false);
-		MessageBox(text);
+		//sprintf(text, "1: The inputs are: ID: %d, StockId: %s, BOOL: %d", atoi(id), stock, (int)false);
+		/*MessageBox(text);*/
 
 		contractDefine(newContract, id, stock,"SMART", "ISLAND", "USD", 0, false, "STK" );
 		idToAction[atoi(id)] = actionID;
