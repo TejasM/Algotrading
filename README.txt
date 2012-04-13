@@ -69,6 +69,11 @@ been found for the request. On researching the problem we have come
 to the conclusion that this is not our fault and is due to
 disconnection of the TWS from the server while recieve data.
 
+Bar Sizes in multiples of 5 are the only bar sizes supported. Even
+then the real time data will be printed every 5 secs but the EMA
+outpu files will only be updated every bar size seconds (though) it
+will still say 5s data.
+
 =====================================================================
 
 Summary of Input Files
