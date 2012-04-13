@@ -36,6 +36,7 @@ AlgoTrading.vcxproj
 ./Sample Inputs
 - Contains example input input files for PairsTrading and EMA, MACD.
 
+
 =====================================================================
 
 Steps to use the GUI
@@ -60,6 +61,34 @@ Outputs that require file output will be in the form of output files
 written to the root directory. Other data such as account requests, 
 errors, and small unimportant data will be displayed their respective 
 list boxes in the GUI.
+
+=====================================================================
+
+Summary of Input Files
+----------------------
+
+canemacrossover.txt
+- Cancel the EMA crossover. 
+- Contains the id of the one that we want to stop.
+
+canemacrossverstopwin.txt
+- Cancel the EMA crossover with stop win/loss. 
+- Contains the id of the one that we want to stop.
+
+canpair.txt
+- Cancel the pair tradings
+
+emacstopwin.txt
+- Start the ema crossover with stop win/loss strategy
+
+emac.txt
+- Start with ema crossover strategy
+
+pair.txt
+- Start the pairs trading strategy
+
+order.txt
+- Place an order
 
 =====================================================================
 
