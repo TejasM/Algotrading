@@ -29,6 +29,7 @@
 
 #include "OrderState.h"
 
+//Various maps to keep track of which id and stocks are associated with which process
 std::map<int, int> idToAction;
 std::map<int, Stock *> idToStock;
 std::map<Stock *, PairsTrading *> stockToPairs;
@@ -36,6 +37,9 @@ std::map<CString, Stock *> tickToStock;
 std::map<int, Order *> idToOrder;
 std::map<int, EMACrossover *> idToCross1;
 std::map<int, int> orderidToGlobalId;
+// For multiple of 5 barsizes
+std::map<int, int> idToBarsize;
+std::map<int, int> idToBarcount;
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -909,6 +913,7 @@ void CClient2Dlg::doWork(TickerId tickerId, double price){
 	Stock *newStock;
 	EMACrossover *emac;
 	char text[100];
+	int barsize;
 
 	/*sprintf(text, "1: The inputs are: ID: %d, Ticker ID: %d", actionCode, tickerId);
 	MessageBox(text);*/
@@ -951,17 +956,30 @@ void CClient2Dlg::doWork(TickerId tickerId, double price){
 		break;
 	case ID_REQBAR:
 		newStock = idToStock[tickerId];
-		/*sprintf(text, "1: The inputs are: ID: %d", tickerId);
-		MessageBox(text);*/
-		newStock->update(tickerId, price);
+		barsize = idToBarsize[tickerId];
+		idToBarcount[tickerId]++;
+		if(idToBarcount[tickerId]*5 == barsize){
+			idToBarcount[tickerId] = 0;
+			newStock->update(tickerId, price);
+		}		
 		break;
 	case ID_REQEMA:
 		newStock = idToStock[tickerId];
-		newStock->update(tickerId, price);
+		barsize = idToBarsize[tickerId];
+		idToBarcount[tickerId]++;
+		if(idToBarcount[tickerId]*5 == barsize){
+			idToBarcount[tickerId] = 0;
+			newStock->update(tickerId, price);
+		}	
 		break;
 	case ID_REQMACD:
 		newStock = idToStock[tickerId];
-		newStock->update(tickerId, price);
+		barsize = idToBarsize[tickerId];
+		idToBarcount[tickerId]++;
+		if(idToBarcount[tickerId]*5 == barsize){
+			idToBarcount[tickerId] = 0;
+			newStock->update(tickerId, price);
+		}	
 		break;
 	case ID_PAIR:
 		newStock = idToStock[tickerId];
@@ -1884,11 +1902,10 @@ void CClient2Dlg::ConnectI(CString ipAddress, CString port, CString clientId){
 	}
 }
 
+//The main function of the communication layer that reads the action code and file from the user and then performs the nessacessary action
+
 void CClient2Dlg::parseFunction(CString code, CString filePath){
 	int actionID = atoi(code);
-	char text[1000];
-	sprintf(text, "The inputs are: Code String: %s, Int: %d, Path: %s", code, actionID, filePath);
-	MessageBox(text);
 	std::ifstream file;
 	if(filePath){
 		file.open(filePath);
@@ -1979,6 +1996,7 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 		idToAction.erase(atoi(id));
 		idToAction.erase(atoi(id) + 1);
 		stockToPairs.erase(newStock);
+		idToCross1.erase(newStock);
 		break;
 	case ID_CANTICK:
 		file.getline(id, 5, '\n');
@@ -2026,6 +2044,8 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 			newStock = new Stock(hack);
 		}
 		idToStock[atoi(id)] = newStock;
+		idToBarsize[atoi(id)] = atoi(barSize);
+		idToBarcount[atoi(id)] = 0;
 		sprintf(text, "New Stack ID: %s", idToStock[atoi(id)]->getTick().c_str());
 		MessageBox(text);
 		idToAction[atoi(id)] = actionID;
@@ -2033,7 +2053,7 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 		MessageBox(text);
 		tickToStock[stock] = newStock;
 		m_pClient->reqRealTimeBars( atoi(id), *newContract,
-			atoi(barSize) /* TODO: parse and use m_dlgOrder->m_barSizeSetting) */,
+			5 /* TODO: parse and use m_dlgOrder->m_barSizeSetting) */,
 			"TRADES", true);
 		break;
 	case ID_REQMACD:
@@ -2051,6 +2071,8 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 		idToStock[atoi(id)] = newStock;
 		idToAction[atoi(id)] = actionID;
 		tickToStock[stock] = newStock;
+		idToBarsize[atoi(id)] = atoi(barSize);
+		idToBarcount[atoi(id)] = 0;
 		m_pClient->reqRealTimeBars( atoi(id), *newContract,
 			atoi(barSize) /* TODO: parse and use m_dlgOrder->m_barSizeSetting) */,
 			"TRADES", true);
@@ -2070,6 +2092,8 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 		idToStock[atoi(id)] = newStock;
 		idToAction[atoi(id)] = actionID;
 		tickToStock[stock] = newStock;
+		idToBarsize[atoi(id)] = atoi(barSize);
+		idToBarcount[atoi(id)] = 0;
 		m_pClient->reqRealTimeBars( atoi(id), *newContract,
 			atoi(barSize) /* TODO: parse and use m_dlgOrder->m_barSizeSetting) */,
 			"TRADES", true);
@@ -2275,9 +2299,10 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 		break;
 	}
 }
-
+//The Click of the input Button
 void CClient2Dlg::OnBnClickedButton1()
 {
+//Top avoid duplicate order ids we store the id at end of the the run as reopen at the start of new run
 	if(!openListTopFile){
 		std::ifstream ListTopFile("ListTop.txt", std::ios::app);
 		if (ListTopFile.is_open()) {
@@ -2293,9 +2318,7 @@ void CClient2Dlg::OnBnClickedButton1()
 	if( dlg.DoModal() == IDCANCEL) {
 		return;
 	}
-	/*CString message;
-	message.FormatMessage(_T("The inputs are: Code String: %s, Path: %s"), dlg.m_actioncode.GetString(), dlg.m_filepath.GetString());
-	MessageBox(message);*/
+
 	parseFunction(dlg.m_actioncode, dlg.m_filepath);
 
 
