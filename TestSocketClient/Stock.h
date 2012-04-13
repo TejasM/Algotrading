@@ -1,5 +1,10 @@
 /*
  * Stock class
+ *  
+ * Implements the stock object. In addition to keeping information such as the 
+ * current EMA and MACD objects associated with each stock, this class writes 
+ * the indicator data to files and places orders.
+ *  
  */
 
 #ifndef STOCK_H 

@@ -92,11 +92,11 @@ order.txt
 
 =====================================================================
 
-List of Key Source Files - please read alongside Design Document
-----------------------------------------------------------------
+List of Key Source Files - please read alongside comments in the code
+---------------------------------------------------------------------
 
 The following source files in ./TestSocketClient contain the implementation
-of our algorithm. Below is a short description of each, but please see the
+of our algorithm. Below is a short description of each, but see the
 comments in each file as a main source of documentation.
 
 1. PairsTrading.h and PairsTrading.cpp

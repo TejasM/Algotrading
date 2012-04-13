@@ -1,6 +1,16 @@
 /*
- * Algorithmic Pairs Trading class
- */
+* Algorithmic Pairs Trading class
+*
+* See design document for more information. This file implements the
+* Finite State Machine described in that document and also calculates
+* order amounts and places orders.
+*
+* State 1 - uncorrelated, wait for correlation
+* State 2 - correlated, wait for divergence
+* State 3 - diverged. Begin Buying/Selling until failure or reconvergence
+* State 4 - Failure or Step before reconvergence: Undo all orders from step 3
+*
+*/
 
 #ifndef PAIRSTRADING_H
 #define PAIRSTRADING_H
@@ -9,7 +19,6 @@
 #include<fstream>
 //#include "EClientSocket.h" 
 #include "utils.h"
-
 
 
 // See Design Document for threshold terminology

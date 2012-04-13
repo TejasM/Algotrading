@@ -5,6 +5,11 @@
 * Finite State Machine described in that document and also calculates
 * order amounts and places orders.
 *
+* State 1 - uncorrelated, wait for correlation
+* State 2 - correlated, wait for divergence
+* State 3 - diverged. Begin Buying/Selling until failure or reconvergence
+* State 4 - Failure or Step before reconvergence: Undo all orders from step 3
+*
 */
 
 #include<iostream>
@@ -241,17 +246,6 @@ void PairsTrading::State4(void *m_pclient) {
 	// OrderAmount maps for each stock and making an opposite order
 
 	// Undo every order on stock 1 since divergence
-/*
-	int temp = s1Data.idListTop;
-	for(int i = s1Data.idListBase; i <= temp; i++){
-		placeOrder(s1, s1Data.OrderType[i], s1->getTick(), s1Data.OrderAmount[i], m_pclient, s1Data.idListTop++);
-	}
-	// Undo every order on stock 2 since divergence
-	temp = s2Data.idListTop;
-	for(int i = s2Data.idListBase; i <= temp ; i++){
-		placeOrder(s2, s2Data.OrderType[i], s2->getTick(), s2Data.OrderAmount[i], m_pclient, s2Data.idListTop++);
-	}
-*/
 	std::string order;
 	if (s1Data.AmountBought > 0) order = "SELL";
 	else order = "BUY";
