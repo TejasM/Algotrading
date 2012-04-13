@@ -1924,6 +1924,7 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 	char orderSize[10];
 	char action[10];
 	char limitPrice[10];
+
 	std::ofstream ListTopFile("ListTop.txt");
 	Contract *newContract = new Contract();
 
@@ -1935,14 +1936,19 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 	Order *newOrder;
 	char d1[10];
 	char d2[10];
+	char fast[10];
+	char slow[10];
+
 	switch (actionID)	{
 	case ID_AUTOEMA:
 		file.getline(id, 5, '\n');
 		file.getline(stock, 100, '\n');
 		file.getline(orderSize, 10, '\n');
+		file.getline(fast, 10, '\n');
+		file.getline(slow, 10, '\n');
 		contractDefine(newContract, id, stock,"SMART", "ISLAND", "USD", 0, false, "STK" );
 		newStock = new Stock(stock);
-		newStock->newMACD(atoi(id), 26, 12, 9);
+		newStock->newMACD(atoi(id), atoi(fast), atoi(slow), 9);
 		eman = new EMACrossover(newStock, atoi(id), atoi(orderSize));
 		idToCross1[atoi(id)] = eman;
 		idToStock[atoi(id)] = newStock;
@@ -1958,9 +1964,11 @@ void CClient2Dlg::parseFunction(CString code, CString filePath){
 		file.getline(orderSize, 10, '\n');
 		file.getline(d1, 10, '\n');
 		file.getline(d2, 10, '\n');
+		file.getline(fast, 10, '\n');
+		file.getline(slow, 10, '\n');
 		contractDefine(newContract, id, stock,"SMART", "ISLAND", "USD", 0, false, "STK" );
 		newStock = new Stock(stock);
-		newStock->newMACD(atoi(id), 26, 12, 9);
+		newStock->newMACD(atoi(id), atoi(fast), atoi(slow), 9);
 		eman = new EMACrossover(newStock, atoi(id), atoi(orderSize), atoi(d1), atoi(d2));
 		idToCross1[atoi(id)] = eman;
 		idToStock[atoi(id)] = newStock;

@@ -1,7 +1,9 @@
 #include "EMA.h"
-
+/*  
+ * EMA Class - see EMA.h for more information
+ */
 using namespace std;
-/* EMA */
+
 EMA::EMA(int numPeriods) 
 	:  curEMA(-1), //start invalid
 	validCount(numPeriods)

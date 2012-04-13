@@ -1,5 +1,5 @@
 /*
- * Algorithmic Pairs Trading class
+ * EMA Crossover Class - see the .h for more description
  */
 
 #include<iostream>

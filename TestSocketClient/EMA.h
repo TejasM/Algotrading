@@ -1,13 +1,17 @@
+#ifndef EMA_H
+#define EMA_H
+
 /*
  * EMA class
  */
 
-#ifndef EMA_H
-#define EMA_H
+/* 
+ * The EMA Class. Used to calculate an exponential moving average. The class is for computation only, and has no notion of what stock it is being used for.
+ * The recursive algorithm is used to compute the average. The class does not use historical data; instead it waits for a number of data points equal to
+ * the length of the EMA before declaring it valid.
+ */
 
 #include <iostream>
-
-/* The EMA Class. Used to calculate an exponential moving average. The class is for computation only, and has no notion of what stock it is being used for */
 
 class EMA {
 	double curEMA; //stores the most up to date EMA value

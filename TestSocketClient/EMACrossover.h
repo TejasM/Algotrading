@@ -3,18 +3,22 @@
 
 /*
  * EMA Crossover class
+ * This class implements the EMA crossover strategy, both with and without stop. 
+ * The sign of a MACD is used to determine whether or not fast is above slow, since MACD is just fast - slow
+ * When a switch occurs, a buy or sell signal is triggered. If a stop is specified, the order will be sold at the stop.
+ * If a stop is unspecified, the order is reversed at the next crossover. A crossover will only be responded to if its slope is steep enough, as measured in 
+ * degrees. 
  */
 
 #include "Stock.h"
 #include<fstream>
-
 
 #define	WAITING_FOR_STOP 0
 #define FAST_ABOVE_SLOW 1
 #define FAST_BELOW_SLOW 2
 #define	INVALID			3
 
-#define MIN_CROSSOVER_STRENGTH 5 //this is how strong a crossover needs to be for us to respond to it
+#define MIN_CROSSOVER_STRENGTH 30 //this is how strong a crossover needs to be for us to respond to it
 
 class EMACrossover {
     public:
