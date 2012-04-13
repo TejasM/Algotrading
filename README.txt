@@ -63,6 +63,12 @@ written to the root directory. Other data such as account requests,
 errors, and small unimportant data will be displayed their respective 
 list boxes in the GUI.
 
+Another thing to note is at times the client returns the following 
+error message: Error Code: 200| Error Msg: No security definition has
+been found for the request. On researching the problem we have come 
+to the conclusion that this is not our fault and is due to
+disconnection of the TWS from the server while recieve data.
+
 =====================================================================
 
 Summary of Input Files
@@ -78,18 +84,23 @@ canemacrossverstopwin.txt
 
 canpair.txt
 - Cancel the pair tradings
+- Contains the id of the first id fo the pairs
 
 emacstopwin.txt
 - Start the ema crossover with stop win/loss strategy
+- Inputs are as follows: id, stock, order size, d1, d2, fast, slow
 
 emac.txt
 - Start with ema crossover strategy
+- Inputs are as follows: id, stock, order size, fast, slow
 
 pair.txt
 - Start the pairs trading strategy
+- Inputs are as follows: id1, stock1, id2, stock2, id3, stock3, id4, stock4, id5, stock5, id6, stock6
 
 order.txt
 - Place an order
+- Inputs are as follows: order id, stock, order action, order size, order type, lmt price
 
 =====================================================================
 

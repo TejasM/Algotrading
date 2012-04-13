@@ -1,0 +1,160 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <UseOfMfc>Dynamic</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <UseOfMfc>Dynamic</UseOfMfc>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>./;./SocketClient/src;./TestSocketClient;./Shared;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>./;./SocketClient/src;./TestSocketClient;./Shared;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="Input_Dialog.cpp" />
+    <ClCompile Include="shared\HScrollListBox.cpp" />
+    <ClCompile Include="socketclient\src\EClientSocket.cpp" />
+    <ClCompile Include="socketclient\src\EClientSocketBase.cpp" />
+    <ClCompile Include="testsocketclient\AcctUpdatesDlg.cpp" />
+    <ClCompile Include="testsocketclient\client2.cpp" />
+    <ClCompile Include="testsocketclient\client2Dlg.cpp" />
+    <ClCompile Include="testsocketclient\DlgAccount.cpp" />
+    <ClCompile Include="testsocketclient\DlgAlgoParams.cpp" />
+    <ClCompile Include="testsocketclient\DlgComboLegs.cpp" />
+    <ClCompile Include="testsocketclient\DlgConnect.cpp" />
+    <ClCompile Include="testsocketclient\DlgExtOrd.cpp" />
+    <ClCompile Include="testsocketclient\DlgFAAllocationInfo.cpp" />
+    <ClCompile Include="testsocketclient\DlgFinancialAdvisor.cpp" />
+    <ClCompile Include="testsocketclient\DlgLogConfig.cpp" />
+    <ClCompile Include="testsocketclient\DlgMktDepth.cpp" />
+    <ClCompile Include="testsocketclient\DlgNewsBulletins.cpp" />
+    <ClCompile Include="testsocketclient\DlgOrder.cpp" />
+    <ClCompile Include="testsocketclient\DlgScanner.cpp" />
+    <ClCompile Include="testsocketclient\DlgSmartComboRoutingParams.cpp" />
+    <ClCompile Include="testsocketclient\DlgUnderComp.cpp" />
+    <ClCompile Include="testsocketclient\EMA.cpp" />
+    <ClCompile Include="testsocketclient\EMACrossover.cpp" />
+    <ClCompile Include="testsocketclient\main.cpp" />
+    <ClCompile Include="testsocketclient\PairsTrading.cpp" />
+    <ClCompile Include="testsocketclient\RptFilterDlg.cpp" />
+    <ClCompile Include="testsocketclient\StdAfx.cpp" />
+    <ClCompile Include="testsocketclient\Stock.cpp" />
+    <ClCompile Include="testsocketclient\utils.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Input_Dialog.h" />
+    <ClInclude Include="shared\CommissionReport.h" />
+    <ClInclude Include="shared\CommonDefs.h" />
+    <ClInclude Include="shared\Contract.h" />
+    <ClInclude Include="shared\EClient.h" />
+    <ClInclude Include="shared\EClientSocketBase.h" />
+    <ClInclude Include="shared\EClientSocketBaseImpl.h" />
+    <ClInclude Include="shared\EWrapper.h" />
+    <ClInclude Include="shared\Execution.h" />
+    <ClInclude Include="shared\HScrollListBox.h" />
+    <ClInclude Include="shared\IBString.h" />
+    <ClInclude Include="shared\Order.h" />
+    <ClInclude Include="shared\OrderState.h" />
+    <ClInclude Include="shared\ScannerSubscription.h" />
+    <ClInclude Include="shared\shared_ptr.h" />
+    <ClInclude Include="shared\StdAfx.h" />
+    <ClInclude Include="shared\TwsSocketClientErrors.h" />
+    <ClInclude Include="socketclient\src\EClientSocket.h" />
+    <ClInclude Include="testsocketclient\AcctUpdatesDlg.h" />
+    <ClInclude Include="testsocketclient\client2.h" />
+    <ClInclude Include="testsocketclient\client2Dlg.h" />
+    <ClInclude Include="testsocketclient\DlgAccount.h" />
+    <ClInclude Include="testsocketclient\DlgAlgoParams.h" />
+    <ClInclude Include="testsocketclient\DlgComboLegs.h" />
+    <ClInclude Include="testsocketclient\DlgConnect.h" />
+    <ClInclude Include="testsocketclient\DlgExtOrd.h" />
+    <ClInclude Include="testsocketclient\DlgFAAllocationInfo.h" />
+    <ClInclude Include="testsocketclient\DlgFinancialAdvisor.h" />
+    <ClInclude Include="testsocketclient\DlgLogConfig.h" />
+    <ClInclude Include="testsocketclient\DlgMktDepth.h" />
+    <ClInclude Include="testsocketclient\DlgNewsBulletins.h" />
+    <ClInclude Include="testsocketclient\DlgOrder.h" />
+    <ClInclude Include="testsocketclient\DlgScanner.h" />
+    <ClInclude Include="testsocketclient\DlgSmartComboRoutingParams.h" />
+    <ClInclude Include="testsocketclient\DlgUnderComp.h" />
+    <ClInclude Include="testsocketclient\EMA.h" />
+    <ClInclude Include="testsocketclient\EMACrossover.h" />
+    <ClInclude Include="testsocketclient\PairsTrading.h" />
+    <ClInclude Include="testsocketclient\resource.h" />
+    <ClInclude Include="testsocketclient\RptFilterDlg.h" />
+    <ClInclude Include="testsocketclient\StdAfx.h" />
+    <ClInclude Include="testsocketclient\Stock.h" />
+    <ClInclude Include="testsocketclient\utils.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="testsocketclient\client2.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="testsocketclient\res\client2.ico" />
+    <None Include="testsocketclient\res\client2.rc2" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

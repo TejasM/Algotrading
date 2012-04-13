@@ -1,0 +1,133 @@
+﻿Build started 4/13/2012 8:56:59 AM.
+     1>Project "H:\Algotrading\AlgotradingGit\Algotrading\Algotrading.vcxproj" on node 2 (build target(s)).
+     1>InitializeBuildStatus:
+         Creating "Release\Algotrading.unsuccessfulbuild" because "AlwaysCreate" was specified.
+       ClCompile:
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I./ /I./SocketClient/src /I./TestSocketClient /I./Shared /Zi /nologo /W3 /WX- /O2 /Oy- /D WIN32 /D NDEBUG /D _WINDOWS /D _AFXDLL /Gm- /EHsc /MD /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt testsocketclient\EMA.cpp testsocketclient\EMACrossover.cpp testsocketclient\PairsTrading.cpp testsocketclient\Stock.cpp testsocketclient\client2Dlg.cpp
+         EMA.cpp
+         EMACrossover.cpp
+     1>h:\algotrading\algotradinggit\algotrading\shared\IBString.h(37): warning C4800: 'int' : forcing value to bool 'true' or 'false' (performance warning)
+     1>h:\algotrading\algotradinggit\algotrading\shared\IBString.h(46): warning C4800: 'int' : forcing value to bool 'true' or 'false' (performance warning)
+         PairsTrading.cpp
+     1>h:\algotrading\algotradinggit\algotrading\shared\IBString.h(37): warning C4800: 'int' : forcing value to bool 'true' or 'false' (performance warning)
+     1>h:\algotrading\algotradinggit\algotrading\shared\IBString.h(46): warning C4800: 'int' : forcing value to bool 'true' or 'false' (performance warning)
+         Stock.cpp
+     1>h:\algotrading\algotradinggit\algotrading\shared\IBString.h(37): warning C4800: 'int' : forcing value to bool 'true' or 'false' (performance warning)
+     1>h:\algotrading\algotradinggit\algotrading\shared\IBString.h(46): warning C4800: 'int' : forcing value to bool 'true' or 'false' (performance warning)
+     1>testsocketclient\Stock.cpp(66): warning C4996: 'itoa': The POSIX name for this item is deprecated. Instead, use the ISO C++ conformant name: _itoa. See online help for details.
+                 c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\stdlib.h(867) : see declaration of 'itoa'
+     1>testsocketclient\Stock.cpp(99): warning C4244: '=' : conversion from 'double' to 'long', possible loss of data
+     1>testsocketclient\Stock.cpp(124): warning C4996: 'itoa': The POSIX name for this item is deprecated. Instead, use the ISO C++ conformant name: _itoa. See online help for details.
+                 c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\stdlib.h(867) : see declaration of 'itoa'
+     1>testsocketclient\Stock.cpp(189): warning C4101: 'text' : unreferenced local variable
+         client2Dlg.cpp
+         _WIN32_WINNT not defined. Defaulting to _WIN32_WINNT_MAXVER (see WinSDKVer.h)
+     1>h:\algotrading\algotradinggit\algotrading\shared\IBString.h(37): warning C4800: 'int' : forcing value to bool 'true' or 'false' (performance warning)
+     1>h:\algotrading\algotradinggit\algotrading\shared\IBString.h(46): warning C4800: 'int' : forcing value to bool 'true' or 'false' (performance warning)
+     1>testsocketclient\client2Dlg.cpp(449): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\stdio.h(371) : see declaration of 'sprintf'
+     1>testsocketclient\client2Dlg.cpp(863): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\string.h(110) : see declaration of 'strcat'
+     1>testsocketclient\client2Dlg.cpp(915): warning C4101: 'text' : unreferenced local variable
+     1>testsocketclient\client2Dlg.cpp(1435): warning C4101: 'text' : unreferenced local variable
+     1>testsocketclient\client2Dlg.cpp(1463): warning C4101: 'text' : unreferenced local variable
+     1>testsocketclient\client2Dlg.cpp(1708): warning C4996: 'itoa': The POSIX name for this item is deprecated. Instead, use the ISO C++ conformant name: _itoa. See online help for details.
+                 c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\stdlib.h(867) : see declaration of 'itoa'
+     1>testsocketclient\client2Dlg.cpp(1712): warning C4996: 'itoa': The POSIX name for this item is deprecated. Instead, use the ISO C++ conformant name: _itoa. See online help for details.
+                 c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\stdlib.h(867) : see declaration of 'itoa'
+     1>testsocketclient\client2Dlg.cpp(2159): warning C4996: 'itoa': The POSIX name for this item is deprecated. Instead, use the ISO C++ conformant name: _itoa. See online help for details.
+                 c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\stdlib.h(867) : see declaration of 'itoa'
+     1>testsocketclient\client2Dlg.cpp(2165): warning C4018: '<' : signed/unsigned mismatch
+     1>testsocketclient\client2Dlg.cpp(2199): warning C4258: 'i' : definition from the for loop is ignored; the definition from the enclosing scope is used
+                 testsocketclient\client2Dlg.cpp(2165) : definition of 'i' ignored
+                 testsocketclient\client2Dlg.cpp(132) : definition of 'i' used
+     1>testsocketclient\client2Dlg.cpp(2247): warning C4258: 'i' : definition from the for loop is ignored; the definition from the enclosing scope is used
+                 testsocketclient\client2Dlg.cpp(2165) : definition of 'i' ignored
+                 testsocketclient\client2Dlg.cpp(132) : definition of 'i' used
+     1>testsocketclient\client2Dlg.cpp(2295): warning C4258: 'i' : definition from the for loop is ignored; the definition from the enclosing scope is used
+                 testsocketclient\client2Dlg.cpp(2165) : definition of 'i' ignored
+                 testsocketclient\client2Dlg.cpp(132) : definition of 'i' used
+         Generating Code...
+     1>h:\algotrading\algotradinggit\algotrading\testsocketclient\pairstrading.cpp(89): warning C4715: 'PairsTrading::calculateDiff' : not all control paths return a value
+       ResourceCompile:
+         All outputs are up-to-date.
+       ManifestResourceCompile:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\rc.exe /nologo /fo"Release\Algotrading.exe.embed.manifest.res" Release\Algotrading_manifest.rc 
+       Link:
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"H:\Algotrading\AlgotradingGit\Algotrading\Release\Algotrading.exe" /INCREMENTAL /NOLOGO /MANIFEST /ManifestFile:"Release\Algotrading.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"H:\Algotrading\AlgotradingGit\Algotrading\Release\Algotrading.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"H:\Algotrading\AlgotradingGit\Algotrading\Release\Algotrading.lib" /MACHINE:X86 Release\client2.res
+         Release\Algotrading.exe.embed.manifest.res
+         Release\Input_Dialog.obj
+         Release\HScrollListBox.obj
+         Release\EClientSocket.obj
+         Release\EClientSocketBase.obj
+         Release\AcctUpdatesDlg.obj
+         Release\client2.obj
+         Release\client2Dlg.obj
+         Release\DlgAccount.obj
+         Release\DlgAlgoParams.obj
+         Release\DlgComboLegs.obj
+         Release\DlgConnect.obj
+         Release\DlgExtOrd.obj
+         Release\DlgFAAllocationInfo.obj
+         Release\DlgFinancialAdvisor.obj
+         Release\DlgLogConfig.obj
+         Release\DlgMktDepth.obj
+         Release\DlgNewsBulletins.obj
+         Release\DlgOrder.obj
+         Release\DlgScanner.obj
+         Release\DlgSmartComboRoutingParams.obj
+         Release\DlgUnderComp.obj
+         Release\EMA.obj
+         Release\EMACrossover.obj
+         Release\main.obj
+         Release\PairsTrading.obj
+         Release\RptFilterDlg.obj
+         Release\StdAfx.obj
+         Release\Stock.obj
+         Release\utils.obj
+     1>LINK : warning LNK4075: ignoring '/INCREMENTAL' due to '/OPT:ICF' specification
+       Manifest:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /out:"Release\Algotrading.exe.embed.manifest" /manifest Release\Algotrading.exe.intermediate.manifest "c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\Include\Manifest\dpiaware.manifest"
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\rc.exe /nologo /fo"Release\Algotrading.exe.embed.manifest.res" Release\Algotrading_manifest.rc 
+       LinkEmbedManifest:
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"H:\Algotrading\AlgotradingGit\Algotrading\Release\Algotrading.exe" /INCREMENTAL /NOLOGO /MANIFEST /ManifestFile:"Release\Algotrading.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"H:\Algotrading\AlgotradingGit\Algotrading\Release\Algotrading.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"H:\Algotrading\AlgotradingGit\Algotrading\Release\Algotrading.lib" /MACHINE:X86 Release\client2.res
+         Release\Algotrading.exe.embed.manifest.res
+         Release\Input_Dialog.obj
+         Release\HScrollListBox.obj
+         Release\EClientSocket.obj
+         Release\EClientSocketBase.obj
+         Release\AcctUpdatesDlg.obj
+         Release\client2.obj
+         Release\client2Dlg.obj
+         Release\DlgAccount.obj
+         Release\DlgAlgoParams.obj
+         Release\DlgComboLegs.obj
+         Release\DlgConnect.obj
+         Release\DlgExtOrd.obj
+         Release\DlgFAAllocationInfo.obj
+         Release\DlgFinancialAdvisor.obj
+         Release\DlgLogConfig.obj
+         Release\DlgMktDepth.obj
+         Release\DlgNewsBulletins.obj
+         Release\DlgOrder.obj
+         Release\DlgScanner.obj
+         Release\DlgSmartComboRoutingParams.obj
+         Release\DlgUnderComp.obj
+         Release\EMA.obj
+         Release\EMACrossover.obj
+         Release\main.obj
+         Release\PairsTrading.obj
+         Release\RptFilterDlg.obj
+         Release\StdAfx.obj
+         Release\Stock.obj
+         Release\utils.obj
+     1>LINK : warning LNK4075: ignoring '/INCREMENTAL' due to '/OPT:ICF' specification
+         Algotrading.vcxproj -> H:\Algotrading\AlgotradingGit\Algotrading\Release\Algotrading.exe
+       FinalizeBuildStatus:
+         Deleting file "Release\Algotrading.unsuccessfulbuild".
+         Touching "Release\Algotrading.lastbuildstate".
+     1>Done Building Project "H:\Algotrading\AlgotradingGit\Algotrading\Algotrading.vcxproj" (build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:31.71
