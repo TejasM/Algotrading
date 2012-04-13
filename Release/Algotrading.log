@@ -1,25 +1,9 @@
-﻿Build started 4/13/2012 8:56:59 AM.
+﻿Build started 4/13/2012 10:44:49 AM.
      1>Project "H:\Algotrading\AlgotradingGit\Algotrading\Algotrading.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
          Creating "Release\Algotrading.unsuccessfulbuild" because "AlwaysCreate" was specified.
        ClCompile:
-         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I./ /I./SocketClient/src /I./TestSocketClient /I./Shared /Zi /nologo /W3 /WX- /O2 /Oy- /D WIN32 /D NDEBUG /D _WINDOWS /D _AFXDLL /Gm- /EHsc /MD /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt testsocketclient\EMA.cpp testsocketclient\EMACrossover.cpp testsocketclient\PairsTrading.cpp testsocketclient\Stock.cpp testsocketclient\client2Dlg.cpp
-         EMA.cpp
-         EMACrossover.cpp
-     1>h:\algotrading\algotradinggit\algotrading\shared\IBString.h(37): warning C4800: 'int' : forcing value to bool 'true' or 'false' (performance warning)
-     1>h:\algotrading\algotradinggit\algotrading\shared\IBString.h(46): warning C4800: 'int' : forcing value to bool 'true' or 'false' (performance warning)
-         PairsTrading.cpp
-     1>h:\algotrading\algotradinggit\algotrading\shared\IBString.h(37): warning C4800: 'int' : forcing value to bool 'true' or 'false' (performance warning)
-     1>h:\algotrading\algotradinggit\algotrading\shared\IBString.h(46): warning C4800: 'int' : forcing value to bool 'true' or 'false' (performance warning)
-         Stock.cpp
-     1>h:\algotrading\algotradinggit\algotrading\shared\IBString.h(37): warning C4800: 'int' : forcing value to bool 'true' or 'false' (performance warning)
-     1>h:\algotrading\algotradinggit\algotrading\shared\IBString.h(46): warning C4800: 'int' : forcing value to bool 'true' or 'false' (performance warning)
-     1>testsocketclient\Stock.cpp(66): warning C4996: 'itoa': The POSIX name for this item is deprecated. Instead, use the ISO C++ conformant name: _itoa. See online help for details.
-                 c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\stdlib.h(867) : see declaration of 'itoa'
-     1>testsocketclient\Stock.cpp(99): warning C4244: '=' : conversion from 'double' to 'long', possible loss of data
-     1>testsocketclient\Stock.cpp(124): warning C4996: 'itoa': The POSIX name for this item is deprecated. Instead, use the ISO C++ conformant name: _itoa. See online help for details.
-                 c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\stdlib.h(867) : see declaration of 'itoa'
-     1>testsocketclient\Stock.cpp(189): warning C4101: 'text' : unreferenced local variable
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I./ /I./SocketClient/src /I./TestSocketClient /I./Shared /Zi /nologo /W3 /WX- /O2 /Oy- /D WIN32 /D NDEBUG /D _WINDOWS /D _AFXDLL /Gm- /EHsc /MD /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt testsocketclient\client2Dlg.cpp
          client2Dlg.cpp
          _WIN32_WINNT not defined. Defaulting to _WIN32_WINNT_MAXVER (see WinSDKVer.h)
      1>h:\algotrading\algotradinggit\algotrading\shared\IBString.h(37): warning C4800: 'int' : forcing value to bool 'true' or 'false' (performance warning)
@@ -35,20 +19,18 @@
                  c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\stdlib.h(867) : see declaration of 'itoa'
      1>testsocketclient\client2Dlg.cpp(1712): warning C4996: 'itoa': The POSIX name for this item is deprecated. Instead, use the ISO C++ conformant name: _itoa. See online help for details.
                  c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\stdlib.h(867) : see declaration of 'itoa'
-     1>testsocketclient\client2Dlg.cpp(2159): warning C4996: 'itoa': The POSIX name for this item is deprecated. Instead, use the ISO C++ conformant name: _itoa. See online help for details.
+     1>testsocketclient\client2Dlg.cpp(2171): warning C4996: 'itoa': The POSIX name for this item is deprecated. Instead, use the ISO C++ conformant name: _itoa. See online help for details.
                  c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\stdlib.h(867) : see declaration of 'itoa'
-     1>testsocketclient\client2Dlg.cpp(2165): warning C4018: '<' : signed/unsigned mismatch
-     1>testsocketclient\client2Dlg.cpp(2199): warning C4258: 'i' : definition from the for loop is ignored; the definition from the enclosing scope is used
-                 testsocketclient\client2Dlg.cpp(2165) : definition of 'i' ignored
+     1>testsocketclient\client2Dlg.cpp(2177): warning C4018: '<' : signed/unsigned mismatch
+     1>testsocketclient\client2Dlg.cpp(2210): warning C4258: 'i' : definition from the for loop is ignored; the definition from the enclosing scope is used
+                 testsocketclient\client2Dlg.cpp(2177) : definition of 'i' ignored
                  testsocketclient\client2Dlg.cpp(132) : definition of 'i' used
-     1>testsocketclient\client2Dlg.cpp(2247): warning C4258: 'i' : definition from the for loop is ignored; the definition from the enclosing scope is used
-                 testsocketclient\client2Dlg.cpp(2165) : definition of 'i' ignored
+     1>testsocketclient\client2Dlg.cpp(2259): warning C4258: 'i' : definition from the for loop is ignored; the definition from the enclosing scope is used
+                 testsocketclient\client2Dlg.cpp(2177) : definition of 'i' ignored
                  testsocketclient\client2Dlg.cpp(132) : definition of 'i' used
-     1>testsocketclient\client2Dlg.cpp(2295): warning C4258: 'i' : definition from the for loop is ignored; the definition from the enclosing scope is used
-                 testsocketclient\client2Dlg.cpp(2165) : definition of 'i' ignored
+     1>testsocketclient\client2Dlg.cpp(2308): warning C4258: 'i' : definition from the for loop is ignored; the definition from the enclosing scope is used
+                 testsocketclient\client2Dlg.cpp(2177) : definition of 'i' ignored
                  testsocketclient\client2Dlg.cpp(132) : definition of 'i' used
-         Generating Code...
-     1>h:\algotrading\algotradinggit\algotrading\testsocketclient\pairstrading.cpp(89): warning C4715: 'PairsTrading::calculateDiff' : not all control paths return a value
        ResourceCompile:
          All outputs are up-to-date.
        ManifestResourceCompile:
@@ -130,4 +112,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:31.71
+Time Elapsed 00:00:14.72
