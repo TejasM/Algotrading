@@ -59,9 +59,6 @@ double PairsTrading::getInvestmentAmount (std::string order,
 		Consider:
 		- Amount of money we currently have
 		- How long we've been diverged
-		? Difference between amount at divergence and now? (e.g. * diff/T2)
-
-		Example function:
 		*/
 
 		double Amount_to_invest = current_money * MIN(0.01, 0.001 * count);
